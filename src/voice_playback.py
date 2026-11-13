@@ -42,8 +42,8 @@ def list_audio_devices() -> list[dict]:
             }
             for i, d in enumerate(sd.query_devices())
         ]
-    except ImportError:
-        logger.warning("sounddevice not installed - run: pip install sounddevice soundfile")
+    except (ImportError, OSError) as exc:
+        logger.warning("audio devices unavailable (%s)", exc)
         return []
 
 

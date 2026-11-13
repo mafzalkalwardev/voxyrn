@@ -40,6 +40,20 @@ def test_list_devices_empty_on_import_error():
     assert isinstance(result, list)
 
 
+def test_list_devices_empty_when_portaudio_is_missing():
+    import sys
+    import types
+
+    fake = types.ModuleType("sounddevice")
+
+    def query_devices():
+        raise OSError("PortAudio library not found")
+
+    fake.query_devices = query_devices
+    with patch.dict(sys.modules, {"sounddevice": fake}):
+        assert list_audio_devices() == []
+
+
 # ---- find_loopback_device ----
 
 def test_find_loopback_device_returns_index():

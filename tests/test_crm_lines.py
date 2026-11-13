@@ -1,5 +1,6 @@
 """Admin CRM, Ashley's seed, DNC, and one-account Chrome lines."""
 import json
+import os
 from pathlib import Path
 
 from src.auth import verify_password
@@ -22,7 +23,8 @@ def test_ashley_is_seeded_without_leaking_the_password(tmp_path, monkeypatch):
     record = next(row for row in stored if row["username"] == "Ashley")
     secret = ashley_password_path().read_text(encoding="utf-8").strip()
     assert verify_password(secret, record["password_hash"])
-    assert secret_file.stat().st_mode & 0o077 == 0
+    if os.name == "posix":
+        assert secret_file.stat().st_mode & 0o077 == 0
     first = secret_file.read_bytes()
     ensure_ashley()
     assert secret_file.read_bytes() == first
