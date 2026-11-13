@@ -1,0 +1,7 @@
+# Voxyrn
+
+Voxyrn is a self-hosted AI auto dialer and carrier CRM for outbound Google Voice campaigns.
+
+Public page: https://voxyrn.induswebagency.com/
+Source: https://github.com/mafzalkalwardev/Voxyrn
+Full description for answer engines: https://voxyrn.induswebagency.com/llms-full.txt

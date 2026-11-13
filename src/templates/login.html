@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Log in — Voxyrn</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="Sign in to the Voxyrn operator console." />
+  <link rel="icon" href="/static/voxyrn-mark.svg" type="image/svg+xml" />
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; background: #f4f7fb; color: #14283f; }
+    main { max-width: 420px; margin: 8vh auto; padding: 0 16px 32px; }
+    .card { background: #fff; border: 1px solid #d5e0ea; border-radius: 14px; padding: 24px; }
+    h1 { font-size: 1.6rem; margin: 8px 0 4px; color: #0c2340; }
+    label { display: block; font-weight: 650; margin: 14px 0 6px; }
+    input { width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid #b7c8d8; border-radius: 8px; font: inherit; }
+    button, .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; margin-top: 16px; padding: 10px 16px; border: 0; border-radius: 8px; background: #0b6bcb; color: #fff; font: inherit; font-weight: 700; cursor: pointer; text-decoration: none; }
+    .error { background: #fff4f2; border: 1px solid #f0c2ba; color: #8a2b1f; padding: 10px 12px; border-radius: 8px; }
+    .brand { display: flex; align-items: center; gap: 8px; color: #0c2340; text-decoration: none; font-weight: 700; }
+    p { line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="brand" href="/"><img src="/static/voxyrn-mark.svg" width="32" height="32" alt="" /> Voxyrn</a>
+    <div class="card">
+      <h1>Log in</h1>
+      <p>Operator access to the dialer, leads, recordings, and carrier CRM.</p>
+      {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+      {% if setup_mode %}
+      <form method="post" action="/setup">
+        <label for="username">Admin username</label>
+        <input id="username" name="username" autocomplete="username" required minlength="3" />
+        <label for="password">Admin password</label>
+        <input id="password" name="password" type="password" autocomplete="new-password" required minlength="10" />
+        <button type="submit">Create admin and continue</button>
+      </form>
+      <p>This form is only shown on a loopback connection before any user exists. The public server sets <code>VOXYRN_ADMIN_PASSWORD</code> instead.</p>
+      {% elif locked %}
+      <p class="error" role="alert">Too many sign-in attempts. Wait 15 minutes and try again.</p>
+      {% else %}
+      <form method="post" action="/login">
+        <input type="hidden" name="next" value="{{ next_url }}" />
+        <label for="username">Username</label>
+        <input id="username" name="username" autocomplete="username" required />
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required />
+        <button type="submit">Log in</button>
+      </form>
+      {% if not has_users %}
+      <p>No operator account exists yet. On the server, set <code>VOXYRN_ADMIN_USER</code> and <code>VOXYRN_ADMIN_PASSWORD</code> in <code>.env</code> and restart the service.</p>
+      {% endif %}
+      {% endif %}
+    </div>
+  </main>
+</body>
+</html>

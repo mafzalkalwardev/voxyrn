@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% set active_page = "admin" %}
+{% block title %}Users — Voxyrn{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2 class="page-title">Users</h2>
+    <p class="page-sub">Create operator logins. Passwords are stored as hashes.</p>
+  </div>
+</div>
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+{% if created %}<p class="success">Created {{ created }}.</p>{% endif %}
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Username</th><th>Role</th><th>Created</th></tr></thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>{{ user.username }}</td>
+        <td>{{ user.role }}</td>
+        <td>{{ user.created_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="card">
+  <h3>New user</h3>
+  <form method="post" action="/admin/users">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}" />
+    <label for="username">Username</label>
+    <input id="username" name="username" required minlength="3" maxlength="32" />
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" required minlength="10" autocomplete="new-password" />
+    <label for="role">Role</label>
+    <select id="role" name="role">
+      <option value="operator">Operator</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button class="btn btn-primary" type="submit">Create user</button>
+  </form>
+</div>
+{% endblock %}

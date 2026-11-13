@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% set active_page = "lines" %}
+{% block title %}Lines — Voxyrn{% endblock %}
+{% block content %}
+{% set user = current_user(request) %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2 class="page-title">Chrome lines</h2>
+    <p class="page-sub">One Google Voice account. Each line is its own Chrome profile, display window, and audio pair, and places one live call. Measured capacity on this host is {{ sustainable }}. You can arm up to 7.</p>
+  </div>
+</div>
+{% if warning %}<p class="error" role="alert">{{ warning }}</p>{% endif %}
+<div class="panel">
+  <form id="lineForm" class="form-grid">
+    <div class="form-group">
+      <label for="lineCount">Lines</label>
+      <input id="lineCount" type="number" min="1" max="7" value="{{ count }}" />
+    </div>
+    <div class="form-group">
+      <label>&nbsp;</label>
+      <button class="btn btn-primary" type="submit">Save line count</button>
+    </div>
+  </form>
+  <p id="lineMsg" class="field-hint"></p>
+</div>
+<div class="panel">
+  <table class="data-table">
+    <thead>
+      <tr><th>Line</th><th>Profile</th><th>Status</th><th>Display</th><th>Audio</th><th>VNC</th><th>Account</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for line in lines %}
+      <tr>
+        <td>{{ line.index }}</td>
+        <td>{{ line.profile_name }}</td>
+        <td>{{ "signed in" if line.signed_in else "needs sign-in" }} · {{ line.status }}</td>
+        <td>{{ line.display }} window {{ line.window_position }}</td>
+        <td>{{ line.loopback_device }} / {{ line.capture_device }}</td>
+        <td>{{ line.vnc_port }} / {{ line.novnc_port }}</td>
+        <td>{{ line.gv_account }}</td>
+        <td>
+          {% if line.index > 1 %}
+          <button class="btn" type="button" onclick="cloneLine({{ line.index }})">Clone from tony</button>
+          {% endif %}
+          <button class="btn" type="button" onclick="openSignin({{ line.index }})">Open sign-in</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="field-hint">Line 1 is ready when chrome_profiles/tony contains .gv_session_ok. Startup clones tony into tony_2 and the later profiles. Clone from tony again only while that Chrome is closed. Open sign-in puts the profile on display :98. The laneora display is not used. These VNC ports stay off 5901 and 6080. voxyrn-audio reads VOXYRN_LINES from .env and creates the numbered sinks.</p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById("lineForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const response = await fetch("/admin/lines", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({lines: Number(document.getElementById("lineCount").value)})
+  });
+  const data = await response.json();
+  document.getElementById("lineMsg").textContent = data.ok ? (data.warning || "Saved.") : (data.error || "Not saved");
+  if (data.ok) location.reload();
+});
+async function cloneLine(index) {
+  const response = await fetch("/admin/lines/" + index + "/clone", {method: "POST"});
+  const data = await response.json();
+  document.getElementById("lineMsg").textContent = data.ok ? ("Cloned " + data.profile) : (data.error || "Not cloned");
+  if (data.ok) location.reload();
+}
+async function openSignin(index) {
+  const response = await fetch("/admin/lines/" + index + "/signin", {method: "POST"});
+  const data = await response.json();
+  document.getElementById("lineMsg").textContent = data.ok
+    ? ("Chromium is on " + data.display + ". noVNC port " + data.novnc_port)
+    : (data.error || "Sign-in did not open");
+}
+</script>
+{% endblock %}

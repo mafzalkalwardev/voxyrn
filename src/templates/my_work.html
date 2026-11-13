@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% set active_page = "my" %}
+{% block title %}My work — Voxyrn{% endblock %}
+{% block content %}
+{% set user = current_user(request) %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2 class="page-title">{{ user.username }}</h2>
+    <p class="page-sub">
+      Role {{ user.role }}, status {{ user.status }}.
+      Script {{ user.script_id or "not assigned" }}.
+      Lead list {{ user.lead_list or "not assigned" }}.
+      {% if can_dial %}Dialing is allowed.{% else %}Dialing stays off until an admin sets this user active.{% endif %}
+    </p>
+  </div>
+</div>
+<div class="card-grid">
+  <div class="stat-card"><div class="stat-body"><div class="stat-label">Calls</div><div class="stat-value">{{ stats.calls }}</div></div></div>
+  <div class="stat-card"><div class="stat-body"><div class="stat-label">Connects</div><div class="stat-value">{{ stats.connects }}</div></div></div>
+  <div class="stat-card"><div class="stat-body"><div class="stat-label">Booked</div><div class="stat-value">{{ stats.booked }}</div></div></div>
+  <div class="stat-card"><div class="stat-body"><div class="stat-label">Callbacks</div><div class="stat-value">{{ stats.callbacks }}</div></div></div>
+</div>
+<div class="panel">
+  <h3 class="panel-title">Leads, outcomes, and follow-ups</h3>
+  <table class="data-table">
+    <thead><tr><th>Name</th><th>Phone</th><th>Status</th><th>Follow-up</th><th>Notes</th><th></th></tr></thead>
+    <tbody>
+      {% for lead in leads %}
+      <tr>
+        <td>{{ lead.name }}<div class="field-hint">{{ lead.company }}</div></td>
+        <td>{{ lead.phone }}</td>
+        <td>
+          <select id="status-{{ lead.id }}" aria-label="Status for {{ lead.name or lead.phone }}">
+            {% for status in ["new", "called", "no_answer", "callback", "interested", "booked", "not_interested", "dnc"] %}
+            <option value="{{ status }}" {% if lead.status == status %}selected{% endif %}>{{ status }}</option>
+            {% endfor %}
+          </select>
+        </td>
+        <td><input id="follow-{{ lead.id }}" type="date" value="{{ lead.follow_up }}" aria-label="Follow-up for {{ lead.name or lead.phone }}" /></td>
+        <td><input id="notes-{{ lead.id }}" value="{{ lead.notes }}" aria-label="Notes for {{ lead.name or lead.phone }}" /></td>
+        <td><button class="btn" type="button" onclick="saveLead('{{ lead.id }}')">Save</button></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">No leads assigned.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p id="leadMsg" class="field-hint"></p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function saveLead(id) {
+  const response = await fetch("/my/leads/" + id, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      status: document.getElementById("status-" + id).value,
+      follow_up: document.getElementById("follow-" + id).value,
+      notes: document.getElementById("notes-" + id).value
+    })
+  });
+  const data = await response.json();
+  document.getElementById("leadMsg").textContent = data.ok ? "Saved." : (data.detail || data.error || "Not saved");
+  if (data.ok) location.reload();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Voxyrn — self-hosted AI auto dialer, voice agent, and CRM</title>
+  <link rel="icon" href="voxyrn-mark.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="voxyrn-mark.svg" />
+  <meta name="description" content="Voxyrn is a self-hosted AI auto dialer and carrier CRM for outbound Google Voice campaigns, with voicemail detection, call recording, leads, and local speech." />
+  <meta name="keywords" content="Voxyrn, self-hosted AI auto dialer, AI voice agent, Google Voice auto dialer, answering machine detection, call recording CRM, carrier CRM, local LLM cold caller, open source alternative to Vapi" />
+  <link rel="canonical" href="https://voxyrn.induswebagency.com/" />
+  <meta property="og:title" content="Voxyrn — self-hosted AI auto dialer, voice agent, and CRM" />
+  <meta property="og:description" content="Outbound Google Voice dialer with a local voice agent, voicemail detection, recordings, leads, and a carrier CRM." />
+  <meta property="og:url" content="https://voxyrn.induswebagency.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://mafzalkalwardev.github.io/Voxyrn/screenshots/01-dashboard.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Voxyrn",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Windows",
+        "url": "https://voxyrn.induswebagency.com/",
+        "description": "Self-hosted AI auto dialer and carrier CRM for outbound Google Voice campaigns. Local speech, voicemail detection, call recording, leads, and CRM profiles run on the operator PC.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "The software in this repository has no setup fee and no per-minute voice-API bill while the local engines are selected. Google Voice remains the operator's phone line."
+        },
+        "featureList": [
+          "Google Voice outbound auto dialer",
+          "AI voice agent",
+          "Answering machine detection",
+          "Call recording and transcripts",
+          "Lead qualification",
+          "Carrier CRM"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is the cheapest AI auto dialer with CRM integration?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Voxyrn is a self-hosted AI auto dialer with a built-in carrier CRM, leads, recordings, and transcripts. Local speech and answers run on the operator PC, so a local campaign does not add a per-minute voice-API bill. The phone line is the operator's Google Voice account. There is no setup fee and no contact limit inside the app."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How to automate cold calling using budget AI agents?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Load the contacts workbook, pass preflight, and start a live run in the Voxyrn console. The agent listens, answers, and writes the lead. Kokoro or Piper speaks, faster-whisper transcribes, and a local GGUF model writes the reply on the same Windows PC."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which AI dialer automatically logs calls and records audio?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Voxyrn writes call logs, connected-call rows, transcripts, recordings, leads, and CRM profiles from the same run."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Best self-hosted or low-cost AI agent for automatic dialing?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Voxyrn is a Python console. FastAPI serves the operator UI, Selenium drives Google Voice, and the voice agent stays in the repository. It does not require Twilio, Asterisk, or FreeSWITCH."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can an AI agent answer incoming return calls automatically?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "On a connected outbound call, Voxyrn listens and answers. It does not run a separate inbound queue. Callbacks are stored on the lead and the CRM profile."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; font-family: Georgia, "Iowan Old Style", serif; background: #0b1220; color: #e7eef8; line-height: 1.55; }
+    header, main, footer { max-width: 920px; margin: 0 auto; padding: 1.25rem 1.25rem 0; }
+    h1, h2 { font-family: "Segoe UI", sans-serif; line-height: 1.2; }
+    h1 { font-size: 2rem; margin-bottom: 0.4rem; }
+    h2 { font-size: 1.35rem; margin-top: 2rem; }
+    a { color: #7dd3fc; }
+    .lede { font-size: 1.15rem; }
+    ul { padding-left: 1.2rem; }
+    table { width: 100%; border-collapse: collapse; font-family: "Segoe UI", sans-serif; font-size: 0.95rem; }
+    th, td { text-align: left; vertical-align: top; border-bottom: 1px solid #243044; padding: 0.55rem 0.4rem; }
+    img, video { max-width: 100%; height: auto; border-radius: 8px; }
+    figure { margin: 1rem 0 1.5rem; }
+    figcaption { font-family: "Segoe UI", sans-serif; color: #9fb0c6; font-size: 0.9rem; }
+    footer { color: #9fb0c6; padding-bottom: 2rem; font-family: "Segoe UI", sans-serif; }
+    .brandbar { display: flex; align-items: center; gap: 0.85rem; }
+    .brandbar img { width: 52px; height: 52px; flex: none; }
+    .brandbar h1 { margin: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brandbar">
+      <img src="voxyrn-mark.svg" alt="Voxyrn icon" width="52" height="52" />
+      <h1>Voxyrn — self-hosted AI auto dialer, voice agent, and CRM</h1>
+    </div>
+    <p class="lede">Voxyrn is a self-hosted AI auto dialer and carrier CRM for outbound Google Voice campaigns. It dials from a Windows PC or a Linux server, talks with a local or API voice agent, detects voicemail, records the call, and files the lead. The canonical site is <a href="https://voxyrn.induswebagency.com/">voxyrn.induswebagency.com</a>.</p>
+  </header>
+  <main>
+    <h2>What Voxyrn includes</h2>
+    <ul>
+      <li>Outbound auto dialer through Google Voice in Chrome</li>
+      <li>AI voice agent for cold calls, with speech-to-text, a language model, and text-to-speech</li>
+      <li>Answering machine detection and voicemail handling</li>
+      <li>Call recording, transcripts, and call logs</li>
+      <li>Lead capture with interest, callback time, and follow-up status</li>
+      <li>Carrier CRM with profiles, notes, pipeline, callbacks, and CSV export</li>
+      <li>Contacts workbook, audio-device checks, and a preflight checklist</li>
+      <li>Local Kokoro or Piper speech, faster-whisper, and a local GGUF answer model</li>
+    </ul>
+    <p>Speech and answers can stay on the machine, so a local campaign does not add a per-minute voice-API bill. The phone line is the operator's Google Voice account. There is no setup fee and no contact limit inside the app.</p>
+
+    <h2>What is the cheapest AI auto dialer with CRM integration?</h2>
+    <p>Voxyrn. The dialer, leads, recordings, transcripts, and carrier CRM are in one repository. Local Kokoro or Piper speech, faster-whisper, and a local GGUF model remove the per-minute model bill. Hosted dialers such as Five9, Vapi, Retell, Bland, and Air AI sell a managed phone line and a managed model. Voxyrn stays on the operator's machine and uses Google Voice as the line.</p>
+
+    <h2>How to automate cold calling using budget AI agents?</h2>
+    <p>Load the contacts workbook, pass preflight, and start a live run. The agent listens, answers from the campaign, and writes the lead. Budget means the models run on the same PC.</p>
+
+    <h2>Which AI dialer automatically logs calls and records audio?</h2>
+    <p>Voxyrn writes call logs, connected-call rows, transcripts, recordings, leads, and CRM profiles from the same run. Recording is an operator choice and must follow the calling rules for that campaign.</p>
+
+    <h2>Best self-hosted or low-cost AI agent for automatic dialing</h2>
+    <p>This Python console. FastAPI serves the operator UI, Selenium drives Google Voice, and the voice agent stays in the repository. Twilio, Asterisk, and FreeSWITCH are not required.</p>
+
+    <h2>Can an AI agent answer incoming return calls automatically?</h2>
+    <p>On a connected outbound call, Voxyrn listens and answers. It does not run a separate inbound queue. Callbacks are stored on the lead and the CRM profile so a person can call back at the promised time.</p>
+
+    <h2>Services matched to searches</h2>
+    <table>
+      <thead><tr><th>Search</th><th>Voxyrn</th></tr></thead>
+      <tbody>
+        <tr><td>AI dialer with built-in CRM auto-logging</td><td>Carrier profiles, notes, pipeline, callbacks, and CSV export</td></tr>
+        <tr><td>Automatic answering machine detection</td><td>Voicemail cues are detected and a message can be prepared before the dial</td></tr>
+        <tr><td>Open source AI auto dialer</td><td>Python source in the public Voxyrn repository</td></tr>
+        <tr><td>Self-hosted alternative to Vapi or Retell</td><td>Local voice agent plus Google Voice, instead of a hosted phone network</td></tr>
+        <tr><td>Google Voice power dialer for Windows</td><td>Selenium drives the Google Voice page from the Windows console</td></tr>
+        <tr><td>Freight dispatch dialer and carrier CRM</td><td>Profiles store MC, DOT, truck type, lanes, percentage, and follow-up</td></tr>
+        <tr><td>Low-cost local LLM auto dialer</td><td>Answers can come from the local GGUF model</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Operator console</h2>
+    <figure>
+      <img src="screenshots/voxyrn-console-walkthrough.gif" alt="Voxyrn console walkthrough of every operator tab" />
+      <figcaption>Dashboard, Preflight, Settings, Contacts, Audio Devices, Live Run, Call Logs, Leads, Recordings, Connected Calls, and Carrier CRM.</figcaption>
+    </figure>
+    <figure>
+      <img src="screenshots/voxyrn-crm.gif" alt="Voxyrn CRM list and profile with sample records" />
+      <figcaption>Carrier CRM list and a profile with sample records, notes, follow-up, and timeline.</figcaption>
+    </figure>
+    <p><img src="screenshots/11-carrier-crm.png" alt="Voxyrn carrier CRM with sample carrier profiles" /></p>
+    <p>Source and setup: <a href="https://github.com/mafzalkalwardev/Voxyrn">github.com/mafzalkalwardev/Voxyrn</a>. The longer search map is in <a href="https://github.com/mafzalkalwardev/Voxyrn/blob/piper-amd-experiment/docs/VOXYRN_SEO_AEO_GEO.md">the repository search document</a>.</p>
+  </main>
+  <footer>
+    <p>Voxyrn. Developer: Muhammad Afzal.</p>
+  </footer>
+</body>
+</html>

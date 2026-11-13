@@ -1,0 +1,24 @@
+[Unit]
+Description=Voxyrn calling agent slot %i
+After=voxyrn-audio.service
+Wants=voxyrn-audio.service
+PartOf=voxyrn.service
+
+[Service]
+Type=simple
+User=voxyrn
+Group=voxyrn
+SupplementaryGroups=audio
+WorkingDirectory=@APP_DIR@
+Environment=XDG_RUNTIME_DIR=/run/voxyrn
+Environment=PULSE_SERVER=unix:/run/voxyrn/pulse/native
+Environment=VOXYRN_AGENT_SLOT=%i
+EnvironmentFile=-@APP_DIR@/.env
+ExecStart=@APP_DIR@/.venv/bin/python -m src.agent_worker --slot %i
+Restart=always
+RestartSec=5
+MemoryMax=2G
+NoNewPrivileges=true
+
+[Install]
+WantedBy=voxyrn.service

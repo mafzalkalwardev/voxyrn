@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% set active_page = "voices" %}
+{% block title %}Voices — Voxyrn{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2 class="page-title">Voices</h2>
+    <p class="page-sub">English and Spanish only. Piper, Kokoro, and Edge. Model files are downloaded on the server. They are not in git.</p>
+  </div>
+</div>
+<div class="panel">
+  <p class="field-hint">Speech-to-text, 1 thread, 8 seconds of audio, this 4-vCPU x86 host: tiny 0.30s (26x), base 0.51s (16x). Piper lessac medium: 12.3 seconds of speech in 0.26 seconds, realtime factor 47.6. This machine is not ARM. An ARM estimate is about 0.6 of those figures. Kokoro was not timed because its model file is not installed. Edge is a hosted voice, so its factor is not a local CPU cost.</p>
+</div>
+<div class="panel">
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="previewVoice">Preview voice</label>
+      <select id="previewVoice"></select>
+    </div>
+    <div class="form-group">
+      <label for="previewSpeed">Speed</label>
+      <input id="previewSpeed" type="number" min="0.7" max="1.3" step="0.05" value="1" />
+    </div>
+  </div>
+  <div class="form-group"><label for="previewText">Line</label><textarea id="previewText" rows="2">Hi, this is Alex at INDUS Web Agency. Did I reach you with a minute?</textarea></div>
+  <button type="button" class="btn btn-primary" id="previewBtn">Play preview</button>
+  <p id="previewNote" class="field-hint"></p>
+  <audio id="previewAudio" controls style="width:100%;margin-top:8px"></audio>
+</div>
+<div class="panel">
+  <table class="data-table">
+    <thead><tr><th>Engine</th><th>Language</th><th>Voice</th><th>Realtime factor</th></tr></thead>
+    <tbody>
+      {% for voice in voices %}
+      <tr>
+        <td>{{ voice.engine }}</td>
+        <td>{{ voice.language }}</td>
+        <td>{{ voice.label }}</td>
+        <td>{{ voice.rtf }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const voices = {{ voices | tojson }};
+const select = document.getElementById("previewVoice");
+select.innerHTML = voices.map(v => `<option value="${v.engine}|${v.voice_id}">${v.label}</option>`).join("");
+document.getElementById("previewBtn").addEventListener("click", async () => {
+  const [engine, voice] = select.value.split("|");
+  const r = await fetch("/api/voices/preview", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      engine, voice,
+      speed: Number(document.getElementById("previewSpeed").value),
+      text: document.getElementById("previewText").value
+    })
+  });
+  const data = await r.json();
+  document.getElementById("previewNote").textContent = data.note || "";
+  if (data.audio) document.getElementById("previewAudio").src = data.audio;
+});
+</script>
+{% endblock %}

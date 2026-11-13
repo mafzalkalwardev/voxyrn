@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}" />
+  <link rel="canonical" href="{{ canonical }}" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="theme-color" content="#0C2340" />
+  <meta name="application-name" content="Voxyrn" />
+  <link rel="icon" href="/static/voxyrn-mark.svg" type="image/svg+xml" />
+  <link rel="icon" href="/static/landing/favicon-32.png" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/static/landing/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Voxyrn" />
+  <meta property="og:title" content="{{ title }}" />
+  <meta property="og:description" content="{{ description }}" />
+  <meta property="og:url" content="{{ canonical }}" />
+  <meta property="og:image" content="{{ origin }}/static/landing/og.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Voxyrn, a self-hosted AI auto dialer and carrier CRM" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{ title }}" />
+  <meta name="twitter:description" content="{{ description }}" />
+  <meta name="twitter:image" content="{{ origin }}/static/landing/og.jpg" />
+  <meta name="twitter:image:alt" content="Voxyrn, a self-hosted AI auto dialer and carrier CRM" />
+  <script type="application/ld+json">{{ json_ld | safe }}</script>
+  <style>
+    :root {
+      color-scheme: light;
+      --navy: #0c2340;
+      --ink: #14283f;
+      --muted: #3d5166;
+      --line: #d5e0ea;
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --sky: #0b6bcb;
+      --sky-d: #084f98;
+      --chip: #e7f3fc;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      font-size: 1.0625rem;
+      line-height: 1.6;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    a { color: var(--sky-d); }
+    img, svg { max-width: 100%; height: auto; }
+    .skip {
+      position: absolute; left: 12px; top: -40px; background: #fff; padding: 8px 12px; z-index: 5;
+    }
+    .skip:focus { top: 12px; }
+    .wrap { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+    .site-header {
+      background: var(--navy);
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .site-header .wrap {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px 20px;
+      min-height: 72px;
+      padding: 10px 0;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-weight: 700; }
+    .brand img { width: 36px; height: 36px; }
+    .nav { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+    .nav a { color: #d7e7f5; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; padding: 8px 8px; }
+    .nav a:hover { color: #fff; }
+    .header-cta { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 44px; padding: 10px 16px; border-radius: 8px;
+      text-decoration: none; font-weight: 650; border: 1px solid transparent;
+    }
+    .btn-primary { background: var(--sky); color: #fff; }
+    .btn-primary:hover { background: var(--sky-d); }
+    .btn-secondary { background: #fff; color: var(--navy); border-color: var(--line); }
+    .btn-ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.45); }
+    .hero { padding: 48px 0 24px; }
+    .hero-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: 36px; align-items: center; }
+    .eyebrow { margin: 0 0 8px; color: var(--sky-d); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: .8rem; }
+    h1 { font-size: clamp(2.2rem, 4vw, 3.4rem); line-height: 1.05; margin: 0 0 12px; color: var(--navy); }
+    h2 { font-size: clamp(1.5rem, 2.4vw, 2rem); line-height: 1.2; margin: 0 0 12px; color: var(--navy); }
+    h3 { margin: 0 0 8px; font-size: 1.1rem; color: var(--navy); }
+    .lede { font-size: 1.2rem; color: var(--ink); margin: 0 0 18px; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .cta-row .btn-ghost { color: var(--navy); border-color: #b7c8d8; background: #fff; }
+    .shot {
+      margin: 0; background: #fff; border: 1px solid var(--line); border-radius: 14px;
+      overflow: hidden; box-shadow: 0 12px 40px rgba(12, 35, 64, .08);
+    }
+    .shot img { display: block; width: 100%; height: auto; }
+    .shot figcaption { padding: 10px 14px 12px; color: var(--muted); font-size: .92rem; }
+    section { padding: 28px 0; }
+    .panel {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px;
+    }
+    .definition { border-left: 4px solid var(--sky); }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+    .card p, .panel p { margin: 0; color: var(--ink); }
+    .steps { margin: 0; padding-left: 1.2rem; }
+    .steps li { margin: 0 0 10px; }
+    .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    details { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-top: 14px; }
+    summary { cursor: pointer; font-weight: 700; color: var(--navy); min-height: 44px; display: flex; align-items: center; }
+    .faq details p { margin: 8px 0 4px; }
+    .cta-band {
+      background: var(--navy); color: #fff; border-radius: 16px; padding: 28px 22px; margin: 10px 0 28px;
+    }
+    .cta-band h2, .cta-band p { color: #fff; }
+    .cta-band a.btn-primary { background: #fff; color: var(--navy); }
+    .cta-band a.btn-ghost { color: #fff; }
+    footer { border-top: 1px solid var(--line); padding: 22px 0 36px; color: var(--muted); font-size: .95rem; }
+    footer a { color: var(--sky-d); }
+    .workflow { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
+    @media (max-width: 860px) {
+      .hero-grid, .grid, .gallery { grid-template-columns: 1fr; }
+      .header-cta { margin-left: 0; width: 100%; }
+      .header-cta .btn { flex: 1; }
+      .hero { padding-top: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/">
+        <img src="/static/voxyrn-mark.svg" width="36" height="36" alt="Voxyrn icon" />
+        Voxyrn
+      </a>
+      <nav class="nav" aria-label="Page">
+        <a href="#what">What it is</a>
+        <a href="#features">Features</a>
+        <a href="#use-cases">Use cases</a>
+        <a href="#launch">Launch a campaign</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="header-cta">
+        <a class="btn btn-ghost" href="/login">Log in</a>
+        <a class="btn btn-primary" href="#get-started">Get started</a>
+      </div>
+    </div>
+  </header>
+  <main id="main">
+    <div class="wrap">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-grid">
+          <div>
+            <p class="eyebrow">Self-hosted sales automation</p>
+            <h1 id="page-title">Voxyrn</h1>
+            <p class="lede">Voxyrn is a self-hosted AI auto dialer and carrier CRM for outbound Google Voice campaigns. It dials in the browser, talks with a voice agent, detects voicemail, records the call, and files the lead.</p>
+            <div class="cta-row">
+              <a class="btn btn-primary" href="/login">Log in</a>
+              <a class="btn btn-secondary" href="#get-started">Get started</a>
+              <a class="btn btn-ghost" href="{{ agency_url }}">Contact {{ agency_name }}</a>
+            </div>
+          </div>
+          <figure class="shot">
+            <picture>
+              <source type="image/avif" srcset="/static/landing/dashboard.avif" />
+              <source type="image/webp" srcset="/static/landing/dashboard.webp" />
+              <img src="/static/landing/dashboard.webp" width="1100" height="610" alt="Voxyrn dashboard with call totals, recent logs, and links to preflight and the live run" fetchpriority="high" decoding="async" />
+            </picture>
+            <figcaption>The operator dashboard: recent calls and the path into a live run.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="what">
+        <div class="panel definition">
+          <h2>What is Voxyrn?</h2>
+          <p>Voxyrn is a self-hosted AI auto dialer and carrier CRM. Selenium places outbound calls through the operator's own Google Voice account. On Linux the browser is Chromium. On Windows it is Google Chrome. A voice agent listens and answers on the connected call. The same run can write the call log, the recording, the transcript, the lead, and the carrier profile. Speech can stay on the machine with Piper or Kokoro, faster-whisper, and a local GGUF model, or it can use Groq when an API key is configured.</p>
+        </div>
+      </section>
+
+      <section id="features">
+        <h2>What the console actually does</h2>
+        <div class="grid">
+          {% for item in features %}
+          <article class="card">
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.text }}</p>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section id="use-cases">
+        <h2>Use cases</h2>
+        <div class="grid">
+          {% for item in use_cases %}
+          <article class="card">
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.text }}</p>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section id="launch">
+        <div class="panel">
+          <h2>How to launch an outbound campaign</h2>
+          <p>An administrator creates the operator login. The steps below are the live-run path in the console.</p>
+          <ol class="steps">
+            {% for step in howto %}
+            <li><strong>{{ step.name }}.</strong> {{ step.text }}</li>
+            {% endfor %}
+          </ol>
+        </div>
+      </section>
+
+      <section aria-labelledby="screens-title">
+        <h2 id="screens-title">Operator screens</h2>
+        <p>These are screenshots of the Voxyrn console: preflight, the live run, contacts, leads, recordings, and the carrier CRM.</p>
+        <div class="gallery">
+          <figure class="shot">
+            <picture>
+              <source type="image/avif" srcset="/static/landing/preflight.avif" />
+              <source type="image/webp" srcset="/static/landing/preflight.webp" />
+              <img src="/static/landing/preflight.webp" width="720" height="399" alt="Voxyrn preflight checklist before a live dial" loading="lazy" decoding="async" />
+            </picture>
+            <figcaption>Preflight checks the setup before dialing.</figcaption>
+          </figure>
+          <figure class="shot">
+            <picture>
+              <source type="image/avif" srcset="/static/landing/live-run.avif" />
+              <source type="image/webp" srcset="/static/landing/live-run.webp" />
+              <img src="/static/landing/live-run.webp" width="720" height="676" alt="Voxyrn live run console with a single test call and campaign controls" loading="lazy" decoding="async" />
+            </picture>
+            <figcaption>Live Run starts the campaign and can place a single test call.</figcaption>
+          </figure>
+          <figure class="shot">
+            <picture>
+              <source type="image/avif" srcset="/static/landing/contacts.avif" />
+              <source type="image/webp" srcset="/static/landing/contacts.webp" />
+              <img src="/static/landing/contacts.webp" width="720" height="676" alt="Voxyrn contacts page for the imported workbook" loading="lazy" decoding="async" />
+            </picture>
+            <figcaption>Contacts imported from the workbook.</figcaption>
+          </figure>
+          <figure class="shot">
+            <picture>
+              <source type="image/avif" srcset="/static/landing/leads.avif" />
+              <source type="image/webp" srcset="/static/landing/leads.webp" />
+              <img src="/static/landing/leads.webp" width="720" height="563" alt="Voxyrn leads list with interest and follow-up status" loading="lazy" decoding="async" />
+            </picture>
+            <figcaption>Leads captured from calls.</figcaption>
+          </figure>
+          <figure class="shot">
+            <picture>
+              <source type="image/avif" srcset="/static/landing/recordings.avif" />
+              <source type="image/webp" srcset="/static/landing/recordings.webp" />
+              <img src="/static/landing/recordings.webp" width="720" height="506" alt="Voxyrn recordings list for connected calls" loading="lazy" decoding="async" />
+            </picture>
+            <figcaption>Recordings saved with the call.</figcaption>
+          </figure>
+          <figure class="shot">
+            <picture>
+              <source type="image/avif" srcset="/static/landing/crm.avif" />
+              <source type="image/webp" srcset="/static/landing/crm.webp" />
+              <img src="/static/landing/crm.webp" width="720" height="507" alt="Voxyrn carrier CRM list of carrier profiles" loading="lazy" decoding="async" />
+            </picture>
+            <figcaption>Carrier CRM list.</figcaption>
+          </figure>
+        </div>
+        <figure class="shot" style="margin-top:14px">
+          <picture>
+            <source type="image/avif" srcset="/static/landing/profile.avif" />
+            <source type="image/webp" srcset="/static/landing/profile.webp" />
+            <img src="/static/landing/profile.webp" width="720" height="733" alt="Voxyrn carrier profile with notes, follow-up, and call history" loading="lazy" decoding="async" />
+          </picture>
+          <figcaption>A carrier profile with notes, follow-up, and call history.</figcaption>
+        </figure>
+        <figure class="workflow">
+          <img src="/static/landing/workflow.svg" width="980" height="434" alt="Workflow from contacts through dialing, voicemail detection, the voice agent, and CRM follow-up" loading="lazy" decoding="async" />
+        </figure>
+        <details>
+          <summary>Console walkthrough (animated GIF)</summary>
+          <img src="/static/landing/voxyrn-console-walkthrough.gif" width="960" height="531" alt="Animated walkthrough of the Voxyrn operator tabs" loading="lazy" decoding="async" />
+        </details>
+        <details>
+          <summary>CRM walkthrough (animated GIF)</summary>
+          <img src="/static/landing/voxyrn-crm.gif" width="960" height="675" alt="Animated walkthrough of the Voxyrn carrier CRM and a profile" loading="lazy" decoding="async" />
+        </details>
+      </section>
+
+      <section id="faq" class="faq">
+        <h2>Questions</h2>
+        {% for item in faq %}
+        <details {% if loop.first %}open{% endif %}>
+          <summary>{{ item.q }}</summary>
+          <p>{{ item.a }}</p>
+        </details>
+        {% endfor %}
+      </section>
+
+      <section id="get-started">
+        <div class="cta-band">
+          <h2>Get started</h2>
+          <p>If you already have an operator account, log in. An administrator creates users from the console. To host Voxyrn for a campaign, contact {{ agency_name }}.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="/login">Log in</a>
+            <a class="btn btn-ghost" href="{{ agency_url }}">Contact {{ agency_name }}</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <footer>
+    <div class="wrap">
+      <p>Voxyrn is hosted by <a href="{{ agency_url }}">{{ agency_name }}</a>. The phone line is the operator's Google Voice account. Calling must follow the rules that apply to that campaign.</p>
+      <p><a href="/llms.txt">llms.txt</a> · <a href="/llms-full.txt">llms-full.txt</a> · <a href="{{ canonical }}">{{ canonical }}</a></p>
+    </div>
+  </footer>
+</body>
+</html>

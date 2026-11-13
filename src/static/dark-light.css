@@ -1,0 +1,367 @@
+/* Light/Dark theme support for Indus Dispatch Console
+   Brand: navy #0B1F3A · blue #3b82f6 · gold #F5A623
+   Light mode = original app.css look (do not override).
+   Dark mode = same layout, Indus brand colors only.
+*/
+
+/* Default: light (unchanged) */
+:root {
+  --theme-bg: #f8fafc;
+  --theme-surface: #ffffff;
+  --theme-border: #e2e8f0;
+  --theme-text: #0f172a;
+  --theme-muted: #64748b;
+
+  --bg: var(--theme-bg);
+  --surface: var(--theme-surface);
+  --border: var(--theme-border);
+  --text: var(--theme-text);
+  --muted: var(--theme-muted);
+
+  --elevated: #ffffff;
+  --hover-surface: #f1f5f9;
+  --table-surface: #ffffff;
+  --table-header: #f8fafc;
+}
+
+/* Subtle brand touches — light (navy sidebar already from app.css) */
+:root:not([data-theme="dark"]) .sidebar::after {
+  background: linear-gradient(180deg, transparent, rgba(245, 166, 35, 0.55) 45%, rgba(59, 130, 246, 0.35), transparent);
+}
+
+:root:not([data-theme="dark"]) .nav-item.active::before {
+  background: #F5A623;
+}
+
+:root:not([data-theme="dark"]) .topbar {
+  border-bottom-color: rgba(11, 31, 58, 0.08);
+  box-shadow: 0 1px 0 rgba(245, 166, 35, 0.18), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+:root:not([data-theme="dark"]) .btn-primary {
+  background: #0B1F3A;
+  border-color: #0B1F3A;
+}
+
+:root:not([data-theme="dark"]) .btn-primary:hover:not(:disabled) {
+  background: #162d50;
+  border-color: #162d50;
+}
+
+/* ── Dark mode only ─────────────────────────────────────────────── */
+html[data-theme="dark"] {
+  --theme-bg: #07111f;
+  --theme-surface: #0c1a2e;
+  --theme-border: rgba(148, 163, 184, 0.18);
+  --theme-text: #f1f5f9;
+  --theme-muted: #94a3b8;
+
+  --bg: var(--theme-bg);
+  --surface: var(--theme-surface);
+  --border: var(--theme-border);
+  --text: var(--theme-text);
+  --muted: var(--theme-muted);
+
+  --elevated: #12233a;
+  --hover-surface: rgba(59, 130, 246, 0.1);
+  --table-surface: #0b1a2c;
+  --table-header: #0e1d32;
+  --table-row: rgba(148, 163, 184, 0.05);
+
+  /* Keep brand accents readable on dark surfaces */
+  --navy: #e8eef7;
+  --navy-light: #c9d5e5;
+  --blue: #5b9cff;
+  --blue-dark: #93c0ff;
+  --blue-light: rgba(59, 130, 246, 0.14);
+  --gold: #F5A623;
+  --gold-dark: #ffc14d;
+  --amber: #F5A623;
+  --amber-dark: #ffc14d;
+
+  --gray-50: #0e1a2b;
+  --gray-100: #122033;
+  --gray-200: rgba(148, 163, 184, 0.2);
+  --gray-300: rgba(148, 163, 184, 0.32);
+  --gray-400: #94a3b8;
+  --gray-500: #94a3b8;
+  --gray-600: #cbd5e1;
+  --gray-700: #e2e8f0;
+  --gray-800: #f1f5f9;
+  --gray-900: #f8fafc;
+}
+
+html {
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+body,
+.panel,
+.topbar,
+.footer,
+.sidebar,
+.data-table th,
+.data-table td,
+.btn,
+.stat-card {
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+html[data-theme="dark"] body {
+  background: var(--theme-bg);
+  color: var(--theme-text);
+}
+
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .stat-card,
+html[data-theme="dark"] .carrier-card,
+html[data-theme="dark"] .profile-header,
+html[data-theme="dark"] .modal,
+html[data-theme="dark"] .note-item,
+html[data-theme="dark"] .insight-card,
+html[data-theme="dark"] .mini-card,
+html[data-theme="dark"] .page-header,
+html[data-theme="dark"] .recording-player-card,
+html[data-theme="dark"] .log-viewer,
+html[data-theme="dark"] .transcript-viewer {
+  background: var(--elevated);
+  border-color: rgba(148, 163, 184, 0.16);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  color: var(--theme-text);
+}
+
+html[data-theme="dark"] .panel-header,
+html[data-theme="dark"] .form-actions,
+html[data-theme="dark"] .carrier-card__footer,
+html[data-theme="dark"] .table-note-bar,
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-footer {
+  background: #0a1628;
+  border-color: rgba(148, 163, 184, 0.14);
+}
+
+html[data-theme="dark"] .panel-title,
+html[data-theme="dark"] .page-title,
+html[data-theme="dark"] .topbar-title,
+html[data-theme="dark"] .topbar-sub,
+html[data-theme="dark"] .topbar-right,
+html[data-theme="dark"] .footer-dev,
+html[data-theme="dark"] .stat-label,
+html[data-theme="dark"] .stat-value,
+html[data-theme="dark"] .form-label,
+html[data-theme="dark"] label {
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] .topbar {
+  background: rgba(12, 26, 46, 0.96);
+  border-bottom: 1px solid rgba(245, 166, 35, 0.22);
+  box-shadow: none;
+}
+
+html[data-theme="dark"] .footer {
+  background: #060e1a;
+  border-top-color: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+}
+
+/* Sidebar stays Indus navy in dark */
+html[data-theme="dark"] .sidebar {
+  background: linear-gradient(180deg, #060e1a 0%, #0B1F3A 42%, #0d2241 100%);
+  border-right-color: rgba(245, 166, 35, 0.2);
+}
+
+html[data-theme="dark"] .sidebar::after {
+  background: linear-gradient(180deg, transparent, rgba(245, 166, 35, 0.55) 45%, rgba(59, 130, 246, 0.35), transparent);
+}
+
+html[data-theme="dark"] .brand-name,
+html[data-theme="dark"] .nav-section-label,
+html[data-theme="dark"] .sidebar-footer-text,
+html[data-theme="dark"] .nav-link,
+html[data-theme="dark"] .sidebar-footer a {
+  color: rgba(226, 232, 240, 0.88);
+}
+
+html[data-theme="dark"] .nav-link:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme="dark"] .nav-item.active .nav-link {
+  color: #f8fafc;
+  background: rgba(59, 130, 246, 0.16);
+}
+
+html[data-theme="dark"] .nav-item.active::before {
+  background: #F5A623;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select,
+html[data-theme="dark"] .log-filter-input,
+html[data-theme="dark"] .leads-filter-select,
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .search-input {
+  background: #0a1628;
+  border-color: rgba(148, 163, 184, 0.26);
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] textarea:focus,
+html[data-theme="dark"] select:focus {
+  border-color: rgba(59, 130, 246, 0.7);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: rgba(203, 213, 225, 0.55);
+}
+
+html[data-theme="dark"] option {
+  background: #0c1a2e;
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] code,
+html[data-theme="dark"] kbd {
+  background: #0a1628;
+  border-color: rgba(148, 163, 184, 0.22);
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .data-table th {
+  background: #0e1d32;
+  border-bottom-color: rgba(148, 163, 184, 0.22);
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .data-table td {
+  border-bottom-color: rgba(148, 163, 184, 0.12);
+  color: rgba(248, 250, 252, 0.9);
+  background: transparent;
+}
+
+html[data-theme="dark"] .data-table td,
+html[data-theme="dark"] .data-table th {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html[data-theme="dark"] .data-table tbody tr:nth-child(even) td {
+  background: rgba(148, 163, 184, 0.04);
+}
+
+html[data-theme="dark"] .data-table tbody tr:hover td,
+html[data-theme="dark"] #crmTable tbody tr:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+html[data-theme="dark"] .btn-secondary {
+  background: #0a1628;
+  color: rgba(248, 250, 252, 0.92);
+  border-color: rgba(148, 163, 184, 0.26);
+}
+
+html[data-theme="dark"] .btn-secondary:hover:not(:disabled) {
+  background: #12233a;
+  border-color: rgba(148, 163, 184, 0.36);
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] .btn-ghost {
+  border-color: rgba(148, 163, 184, 0.28);
+  color: rgba(203, 213, 225, 0.88);
+}
+
+html[data-theme="dark"] .btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] .btn-primary {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #fff;
+}
+
+html[data-theme="dark"] .btn-primary:hover:not(:disabled) {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+html[data-theme="dark"] .badge--idle,
+html[data-theme="dark"] .badge--slate {
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.22);
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"] .badge--blue,
+html[data-theme="dark"] .badge--dialing,
+html[data-theme="dark"] .badge--ringing,
+html[data-theme="dark"] .badge--running {
+  background: rgba(59, 130, 246, 0.16);
+  border-color: rgba(59, 130, 246, 0.28);
+  color: #dbeafe;
+}
+
+html[data-theme="dark"] .badge--green,
+html[data-theme="dark"] .badge--connected,
+html[data-theme="dark"] .badge--success,
+html[data-theme="dark"] .badge--ended {
+  background: rgba(22, 163, 74, 0.16);
+  border-color: rgba(22, 163, 74, 0.28);
+  color: #bbf7d0;
+}
+
+html[data-theme="dark"] .badge--amber,
+html[data-theme="dark"] .badge--voicemail,
+html[data-theme="dark"] .badge--warning {
+  background: rgba(245, 166, 35, 0.16);
+  border-color: rgba(245, 166, 35, 0.3);
+  color: #fde68a;
+}
+
+html[data-theme="dark"] .badge--red,
+html[data-theme="dark"] .badge--failed {
+  background: rgba(220, 38, 38, 0.16);
+  border-color: rgba(220, 38, 38, 0.28);
+  color: #fecaca;
+}
+
+html[data-theme="dark"] a {
+  color: #93c0ff;
+}
+
+html[data-theme="dark"] a:hover {
+  color: #bfdbfe;
+}
+
+html[data-theme="dark"] .compliance-banner {
+  background: rgba(245, 166, 35, 0.1);
+  border-color: rgba(245, 166, 35, 0.28);
+  color: #fde68a;
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.22);
+  border-radius: 6px;
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.35);
+}

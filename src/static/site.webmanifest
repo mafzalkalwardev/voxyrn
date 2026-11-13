@@ -1,0 +1,17 @@
+{
+  "name": "Voxyrn",
+  "short_name": "Voxyrn",
+  "description": "Always-on sales automation for campaigns, conversations, and follow-up.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0C2340",
+  "theme_color": "#0C2340",
+  "icons": [
+    {
+      "src": "/static/voxyrn-mark.svg",
+      "sizes": "160x160",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Voxyrn — Always-On Sales Automation{% endblock %}</title>
+  <meta name="description" content="Voxyrn automates outbound sales campaigns with natural voice conversations, speech intelligence, lead capture, voicemail handling, and follow-up workflows." />
+  <meta name="keywords" content="Voxyrn, sales automation, outbound sales automation, AI calling platform, voice AI sales agent, AI voice agent, automated sales campaigns, lead qualification automation, appointment setting automation, voicemail detection, answering machine detection, speech-to-text, text-to-speech, realtime voice AI, CRM automation, sales follow-up software" />
+  <meta name="application-name" content="Voxyrn" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="csrf-token" content="{{ csrf_token(request) }}" />
+  <link rel="manifest" href="/static/site.webmanifest" />
+  <link rel="stylesheet" href="/static/app.css" />
+  <link rel="stylesheet" href="/static/dark-light.css" />
+  <link rel="icon" href="/static/voxyrn-mark.svg" type="image/svg+xml" />
+
+  <script>
+    (function () {
+      const storageKey = 'voxyrn_theme';
+      function applyTheme(theme) {
+        const html = document.documentElement;
+        if (theme === 'dark') html.setAttribute('data-theme', 'dark');
+        else html.removeAttribute('data-theme');
+      }
+      function getPreferredTheme() {
+        let theme = null;
+        try { theme = localStorage.getItem(storageKey); } catch (_) { theme = null; }
+        if (theme === 'light' || theme === 'dark') return theme;
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return prefersDark ? 'dark' : 'light';
+      }
+      applyTheme(getPreferredTheme());
+    })();
+  </script>
+</head>
+<body>
+
+
+<!-- ===== SIDEBAR ===== -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img class="brand-logo" src="/static/voxyrn-mark.svg" alt="Voxyrn logo" />
+    <div class="brand-text">
+      <span class="brand-name">VOXYRN</span>
+      <span class="brand-sub">SALES AUTOMATION</span>
+    </div>
+  </div>
+
+  <ul class="nav-list">
+    <li class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+      <a href="/dashboard" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+        </svg>
+        Dashboard
+      </a>
+    </li>
+    <li class="nav-item {% if active_page == 'preflight' %}active{% endif %}">
+      <a href="/preflight" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        Preflight
+      </a>
+    </li>
+    <li class="nav-item {% if active_page == 'settings' %}active{% endif %}">
+      <a href="/settings" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        Settings
+      </a>
+    </li>
+    <li class="nav-item {% if active_page == 'scripts' %}active{% endif %}">
+      <a href="/scripts" class="nav-link">Script</a>
+    </li>
+    <li class="nav-item {% if active_page == 'voices' %}active{% endif %}">
+      <a href="/voices" class="nav-link">Voices</a>
+    </li>
+    <li class="nav-item {% if active_page == 'contacts' %}active{% endif %}">
+      <a href="/contacts" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Contacts
+      </a>
+    </li>
+    <li class="nav-item {% if active_page == 'audio' %}active{% endif %}">
+      <a href="/audio" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+        Audio Devices
+      </a>
+    </li>
+    <li class="nav-item nav-item--run {% if active_page == 'run' %}active{% endif %}">
+      <a href="/run" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8a16 16 0 0 0 6 6l.27-.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21 16z"/>
+        </svg>
+        Live Run
+        <span class="run-badge" id="globalRunBadge" style="display:none">LIVE</span>
+      </a>
+    </li>
+    <li class="nav-item {% if active_page == 'logs' %}active{% endif %}">
+      <a href="/logs" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        Call Logs
+      </a>
+    </li>
+    <li class="nav-item {% if active_page == 'leads' %}active{% endif %}">
+      <a href="/leads" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <line x1="23" y1="11" x2="17" y2="11"/>
+          <line x1="20" y1="8" x2="20" y2="14"/>
+        </svg>
+        Leads
+      </a>
+    </li>
+
+    <li class="nav-section-label">AI &amp; Operations</li>
+
+    <li class="nav-item {% if active_page == 'recordings' %}active{% endif %}">
+      <a href="/recordings" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11V7a3 3 0 0 1 6 0v4"/>
+          <path d="M12 18a3 3 0 0 0 3-3v-1a3 3 0 0 0-6 0v1a3 3 0 0 0 3 3z"/>
+          <path d="M4 18v-2a4 4 0 0 1 4-4"/>
+          <path d="M20 18v-2a4 4 0 0 0-4-4"/>
+        </svg>
+        Recordings
+      </a>
+    </li>
+
+    <li class="nav-section-label">CRM &amp; Intelligence</li>
+
+
+    <li class="nav-item {% if active_page == 'connected_calls' %}active{% endif %}">
+      <a href="/connected-calls" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.32A2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8a16 16 0 0 0 6 6l.27-.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"/>
+          <polyline points="16 2 20 2 20 6"/><line x1="14" y1="8" x2="20" y2="2"/>
+        </svg>
+        Connected Calls
+      </a>
+    </li>
+
+    <li class="nav-item {% if active_page == 'carrier_crm' %}active{% endif %}">
+      <a href="/carrier-crm" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <ellipse cx="12" cy="5" rx="9" ry="3"/>
+          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+        </svg>
+        Carrier CRM
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-footer-text">
+      {% set user = current_user(request) %}
+      {% if user %}
+        {{ user.username }}{% if user.role == 'admin' %} · admin{% endif %}<br>
+        <a href="/my">My work</a><br>
+        {% if user.role == 'admin' %}
+        <a href="/admin/crm">Admin CRM</a><br>
+        <a href="/admin/lines">Lines</a><br>
+        <a href="/admin/users">Users</a><br>
+        {% endif %}
+      {% endif %}
+      Dev: <a href="https://wa.me/923079670503" target="_blank">Muhammad Afzal</a><br>
+      VOXYRN &mdash; v1.0
+    </div>
+    {% if user %}
+    <form method="post" action="/logout" style="margin-top:8px">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}" />
+      <button class="btn btn-ghost btn-sm" type="submit">Log out</button>
+    </form>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- ===== MAIN ===== -->
+<div class="layout">
+  <header class="topbar">
+    <div class="topbar-left">
+      <img class="topbar-mark" src="/static/voxyrn-mark.svg" alt="Voxyrn icon" width="28" height="28" />
+      <div class="topbar-brand">
+        <h1 class="topbar-title">VOXYRN</h1>
+        <span class="topbar-sub">Always-On Sales Automation</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span id="topbarClock"></span>
+      <span class="run-badge" id="globalLiveCallBadge" style="display:none">LIVE</span>
+      <span class="status-pill" id="globalStatusPill">IDLE</span>
+
+      <button id="listenInTopbarBtn"
+              class="btn btn-ghost btn-sm"
+              type="button"
+              title="Hear both sides on Speakers. Recordings always keep both voices."
+              aria-pressed="false"
+              onclick="window.voxyrnToggleListenIn && window.voxyrnToggleListenIn()">
+        Listen-in: Off
+      </button>
+
+      <button id="themeToggle"
+              class="btn btn-ghost btn-sm"
+              type="button"
+              aria-label="Toggle dark/light theme"
+              aria-pressed="false">
+        Theme
+      </button>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <span>VOXYRN &mdash; Always-On Sales Automation</span>
+    <span class="footer-dev">Developer: <strong>Muhammad Afzal</strong> &nbsp;|&nbsp; WhatsApp: <a href="https://wa.me/923079670503" target="_blank">+923079670503</a></span>
+  </footer>
+</div>
+
+
+<script src="/static/app.js"></script>
+
+<script src="/static/theme-toggle.js"></script>
+<script src="/static/live_call.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

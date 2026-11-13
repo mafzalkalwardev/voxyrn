@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% set active_page = "admin" %}
+{% block title %}Admin CRM — Voxyrn{% endblock %}
+{% block content %}
+{% set user = current_user(request) %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2 class="page-title">Admin CRM</h2>
+    <p class="page-sub">Create users, set them pending, active, or suspended, and assign a script and a lead list. Only an active user can start dialing.</p>
+  </div>
+</div>
+<div class="panel">
+  <h3 class="panel-title">People</h3>
+  <table class="data-table">
+    <thead>
+      <tr><th>User</th><th>Role</th><th>Status</th><th>Script</th><th>Lead list</th><th>Calls</th><th>Connects</th><th>Booked</th><th>Callbacks</th></tr>
+    </thead>
+    <tbody>
+      {% for person in users %}
+      {% set stat = stats_by.get(person.username, {}) %}
+      <tr>
+        <td>{{ person.username }}</td>
+        <td>{{ person.role }}</td>
+        <td>
+          <form onsubmit="return saveUser(event, '{{ person.username }}')">
+            <select name="status" aria-label="Status for {{ person.username }}">
+              {% for status in ["pending", "active", "suspended"] %}
+              <option value="{{ status }}" {% if person.status == status %}selected{% endif %}>{{ status }}</option>
+              {% endfor %}
+            </select>
+            <input name="script_id" value="{{ person.script_id }}" placeholder="script id" aria-label="Script for {{ person.username }}" />
+            <input name="lead_list" value="{{ person.lead_list }}" placeholder="lead list" aria-label="Lead list for {{ person.username }}" />
+            <button class="btn" type="submit">Save</button>
+          </form>
+        </td>
+        <td>{{ person.script_id or "—" }}</td>
+        <td>{{ person.lead_list or "—" }}</td>
+        <td>{{ stat.get("calls", 0) }}</td>
+        <td>{{ stat.get("connects", 0) }}</td>
+        <td>{{ stat.get("booked", 0) }}</td>
+        <td>{{ stat.get("callbacks", 0) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="panel">
+  <h3 class="panel-title">New user</h3>
+  <form id="newUser">
+    <div class="form-grid">
+      <div class="form-group"><label for="newName">Username</label><input id="newName" required minlength="3" /></div>
+      <div class="form-group"><label for="newPass">Password</label><input id="newPass" type="password" required minlength="10" autocomplete="new-password" /></div>
+      <div class="form-group"><label for="newRole">Role</label>
+        <select id="newRole"><option value="agent">Agent</option><option value="admin">Admin</option></select>
+      </div>
+      <div class="form-group"><label for="newStatus">Status</label>
+        <select id="newStatus"><option value="pending">Pending</option><option value="active">Active</option><option value="suspended">Suspended</option></select>
+      </div>
+      <div class="form-group"><label for="newScript">Script</label>
+        <select id="newScript">{% for script in scripts %}<option value="{{ script.script_id }}">{{ script.name }}</option>{% endfor %}</select>
+      </div>
+      <div class="form-group"><label for="newList">Lead list</label><input id="newList" placeholder="truck-dispatch" /></div>
+    </div>
+    <button class="btn btn-primary" type="submit">Create user</button>
+    <span id="userMsg" class="field-hint"></span>
+  </form>
+</div>
+<div class="panel">
+  <h3 class="panel-title">Import a lead list</h3>
+  <p class="field-hint">CSV with a phone column, plus name and company when you have them. A number already marked DNC stays DNC. The dialer will not call it.</p>
+  <form id="importForm">
+    <div class="form-grid">
+      <div class="form-group"><label for="importOwner">Assign to</label>
+        <select id="importOwner">{% for user in users %}<option value="{{ user.username }}">{{ user.username }}</option>{% endfor %}</select>
+      </div>
+      <div class="form-group"><label for="importList">List name</label><input id="importList" value="truck-dispatch" /></div>
+    </div>
+    <div class="form-group"><label for="importCsv">CSV</label><textarea id="importCsv" rows="5">phone,name,company
++13175550100,Sam Carter,Northline
+</textarea></div>
+    <button class="btn btn-primary" type="submit">Import</button>
+    <span id="importMsg" class="field-hint"></span>
+  </form>
+</div>
+<div class="panel">
+  <h3 class="panel-title">Every lead</h3>
+  <table class="data-table">
+    <thead><tr><th>Owner</th><th>List</th><th>Name</th><th>Phone</th><th>Status</th><th>Follow-up</th><th>Notes</th></tr></thead>
+    <tbody>
+      {% for lead in leads %}
+      <tr>
+        <td>{{ lead.owner }}</td>
+        <td>{{ lead.list_name }}</td>
+        <td>{{ lead.name }}</td>
+        <td>{{ lead.phone }}</td>
+        <td>{{ lead.status }}</td>
+        <td>{{ lead.follow_up }}</td>
+        <td>{{ lead.notes }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7">No leads imported yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function postJson(url, body) {
+  const response = await fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+  return response.json();
+}
+document.getElementById("newUser").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const data = await postJson("/admin/crm/users", {
+    username: document.getElementById("newName").value,
+    password: document.getElementById("newPass").value,
+    role: document.getElementById("newRole").value,
+    status: document.getElementById("newStatus").value,
+    script_id: document.getElementById("newScript").value,
+    lead_list: document.getElementById("newList").value
+  });
+  document.getElementById("userMsg").textContent = data.ok ? "Created " + data.user.username : (data.error || "Not created");
+  if (data.ok) location.reload();
+});
+async function saveUser(event, username) {
+  event.preventDefault();
+  const form = event.target;
+  const data = await postJson("/admin/crm/users/" + encodeURIComponent(username), {
+    status: form.status.value,
+    script_id: form.script_id.value,
+    lead_list: form.lead_list.value
+  });
+  if (!data.ok) alert(data.error || "Not saved");
+  else location.reload();
+  return false;
+}
+document.getElementById("importForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const data = await postJson("/admin/crm/leads/import", {
+    owner: document.getElementById("importOwner").value,
+    list_name: document.getElementById("importList").value,
+    csv: document.getElementById("importCsv").value
+  });
+  document.getElementById("importMsg").textContent = data.ok ? ("Imported " + data.added) : (data.error || "Not imported");
+  if (data.ok) location.reload();
+});
+</script>
+{% endblock %}

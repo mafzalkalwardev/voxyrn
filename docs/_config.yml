@@ -1,0 +1,11 @@
+title: Voxyrn
+description: Self-hosted AI auto dialer, voice agent, and carrier CRM for outbound Google Voice campaigns.
+url: https://mafzalkalwardev.github.io
+baseurl: /Voxyrn
+theme: jekyll-theme-cayman
+plugins: []
+include:
+  - llms.txt
+  - robots.txt
+  - sitemap.xml
+  - index.html

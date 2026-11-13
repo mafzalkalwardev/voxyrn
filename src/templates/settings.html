@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+{% set active_page = "settings" %}
+
+{% block title %}Settings — Voxyrn{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2 class="page-title">Settings</h2>
+    <p class="page-sub">Configure profiles, audio, API models, and call parameters</p>
+  </div>
+</div>
+
+<div id="saveAlert" class="alert alert-success" style="display:none;margin-bottom:1rem">Settings saved.</div>
+<div id="saveError" class="alert alert-error" style="display:none;margin-bottom:1rem"></div>
+
+<form id="settingsForm" onsubmit="saveSettings(event)">
+
+  <div class="panel">
+    <div class="panel-header"><h3 class="panel-title">Google Voice — Main line</h3></div>
+    <p class="field-hint" style="margin-bottom:1rem">Voxyrn uses one Google Voice account. It places one live call. Leave the audio fields blank to use <code>voxyrn_to_gv</code> and <code>voxyrn_from_gv.monitor</code>. Connect runs sign-in and stops if Google asks for a verification code.</p>
+    <div id="accountRows"></div>
+    <div class="form-grid" style="margin-top:1rem">
+      <input type="hidden" id="gvId" />
+      <div class="form-group"><label>Account Label</label><input id="gvName" type="text" placeholder="Main line" value="Main line" /></div>
+      <div class="form-group"><label>Google Email</label><input id="gvEmail" type="email" autocomplete="username" /></div>
+      <div class="form-group"><label>Password</label><input id="gvPassword" type="password" autocomplete="current-password" placeholder="Leave blank to keep saved password" /></div>
+      <div class="form-group"><label>Chrome Profile</label><input id="gvProfile" type="text" placeholder="sales_profile" /></div>
+      <div class="form-group"><label>Loopback Device</label><input id="gvLoopback" type="text" placeholder="voxyrn_to_gv" /></div>
+      <div class="form-group"><label>Capture Device</label><input id="gvCapture" type="text" placeholder="voxyrn_from_gv.monitor" /></div>
+      <div class="form-group"><label class="check-row"><input id="gvEnabled" type="checkbox" checked /> Enabled for calling</label></div>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn btn-primary" onclick="saveAccount()">Save Main line</button>
+    </div>
+    <div id="accountError" class="alert alert-error" style="display:none;margin-top:1rem"></div>
+  </div>
+
+  <!-- Identity -->
+  <div class="panel">
+    <div class="panel-header"><h3 class="panel-title">Identity &amp; Contact</h3></div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Agent Name</label>
+        <input type="text" name="agent_name" value="{{ cfg.agent_name or 'Jason' }}" />
+      </div>
+      <div class="form-group">
+        <label>Company Name</label>
+        <input type="text" name="company_name" value="{{ cfg.company_name or 'Voxyrn' }}" />
+      </div>
+      <div class="form-group">
+        <label>Company Website</label>
+        <input type="url" name="company_website" value="{{ cfg.company_website or '' }}" />
+      </div>
+      <div class="form-group">
+        <label>Callback Number <span class="label-hint">(spoken in voicemails)</span></label>
+        <input type="text" name="callback_number" value="{{ cfg.callback_number or '' }}" placeholder="+15551234567" />
+      </div>
+      <div class="form-group form-group--wide">
+        <label>Company Context <span class="label-hint">(fed to AI script generator)</span></label>
+        <textarea name="company_context" rows="4">{{ cfg.company_context or '' }}</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chrome -->
+  <div class="panel">
+    <div class="panel-header"><h3 class="panel-title">Chrome Profile</h3></div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Profile Name <span class="label-hint">(folder inside chrome_profiles/)</span></label>
+        <input type="text" name="profile_name" value="{{ cfg.profile_name or 'sales_profile' }}" />
+      </div>
+      <div class="form-group">
+        <label>Contacts File Path</label>
+        <input type="text" name="contacts_file" value="{{ cfg.contacts_file or 'data/contacts.xlsx' }}" />
+        <div class="field-hint">Use the <a href="/contacts">Contacts</a> page to upload a new file.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><h3 class="panel-title">One live call</h3></div>
+    <p class="field-hint">The Main line places one call. The dashboard reports how much CPU and RAM would be left if more lines existed. Those extra lines are not started.</p>
+  </div>
+
+  <!-- AI Models -->
+  <div class="panel">
+    <div class="panel-header"><h3 class="panel-title">AI Models</h3></div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Groq LLM Model</label>
+        <input type="text" name="groq_model" value="{{ cfg.groq_model or 'llama-3.3-70b-versatile' }}" />
+        <div class="field-hint">e.g. llama-3.3-70b-versatile · llama-3.1-8b-instant</div>
+      </div>
+      <div class="form-group">
+        <label>STT Model (Whisper)</label>
+        <input type="text" name="stt_model" value="{{ cfg.stt_model or 'whisper-large-v3-turbo' }}" />
+      </div>
+      <div class="form-group">
+        <label>TTS Engine</label>
+        <select name="tts_engine">
+          <option value="kokoro" {% if cfg.tts_engine == 'kokoro' %}selected{% endif %}>Kokoro (local, more natural)</option>
+          <option value="piper" {% if cfg.tts_engine in ['piper', 'piper-tts'] %}selected{% endif %}>Piper (local ONNX voice)</option>
+          <option value="edge" {% if (cfg.tts_engine or 'edge') in ['edge', 'edge-tts'] %}selected{% endif %}>Edge TTS</option>
+        </select>
+        <div class="field-hint">Kokoro uses models/kokoro and sounds closer to a person. Piper uses the medium ONNX voice. Edge needs the internet.</div>
+      </div>
+      <div class="form-group">
+        <label>TTS Voice</label>
+        <input type="text" name="tts_voice" value="{{ cfg.tts_voice or 'en-US-GuyNeural' }}" />
+        <div class="field-hint">Edge voice name; Piper uses the selected ONNX model.</div>
+      </div>
+      <div class="form-group">
+        <label>Piper Model Path</label>
+        <input type="text" name="piper_model_path" value="{{ cfg.piper_model_path or 'models/piper/en_US-lessac-medium.onnx' }}" />
+        <div class="field-hint">Relative to the Voxyrn runtime folder or an absolute Windows path.</div>
+      </div>
+      <div class="form-group">
+        <label>Piper Pace</label>
+        <input type="number" name="piper_length_scale" value="{{ cfg.piper_length_scale or 1.0 }}" step="0.01" min="0.75" max="1.35" />
+        <div class="field-hint">Lower is faster; 0.95–1.05 usually sounds most natural.</div>
+      </div>
+      <div class="form-group">
+        <label>Piper Voice Variation</label>
+        <input type="number" name="piper_noise_scale" value="{{ cfg.piper_noise_scale or 0.667 }}" step="0.01" min="0" max="1.5" />
+      </div>
+      <div class="form-group">
+        <label>Piper Pronunciation Variation</label>
+        <input type="number" name="piper_noise_w_scale" value="{{ cfg.piper_noise_w_scale or 0.8 }}" step="0.01" min="0" max="1.5" />
+      </div>
+      <div class="form-group">
+        <label class="check-row">
+          <input type="checkbox" name="tts_allow_sapi_fallback" {% if cfg.tts_allow_sapi_fallback %}checked{% endif %} />
+          Allow SAPI fallback if Edge TTS fails
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio -->
+  <div class="panel">
+    <div class="panel-header">
+      <h3 class="panel-title">Audio Routing</h3>
+      <a href="/audio" class="link-muted">Browse devices →</a>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Loopback Device <span class="label-hint">(TTS → Chrome mic)</span></label>
+        <input type="text" name="loopback_device" value="{{ cfg.loopback_device or 'CABLE Input' }}" />
+        <div class="field-hint">Must be an output device. Install VB-CABLE if missing.</div>
+      </div>
+      <div class="form-group">
+        <label>Capture Device <span class="label-hint">(prospect audio)</span></label>
+        <input type="text" name="capture_device" value="{{ cfg.capture_device or 'default' }}" />
+        <div class="field-hint">"default" = WASAPI loopback on system speaker (single-cable setup)</div>
+      </div>
+      <div class="form-group">
+        <label>VAD Threshold <span class="label-hint">(0.005 – 0.1)</span></label>
+        <input type="number" name="vad_threshold" value="{{ cfg.vad_threshold or 0.015 }}" step="0.001" min="0.001" max="0.5" />
+      </div>
+      <div class="form-group">
+        <label>VAD Silence Frames</label>
+        <input type="number" name="vad_silence_frames" value="{{ cfg.vad_silence_frames or 12 }}" min="4" max="60" />
+      </div>
+      <div class="form-group">
+        <label>VAD Speech Frames</label>
+        <input type="number" name="vad_speech_frames" value="{{ cfg.vad_speech_frames or 2 }}" min="1" max="20" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Call timing -->
+  <div class="panel">
+    <div class="panel-header"><h3 class="panel-title">Call Timing</h3></div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Connect Timeout <span class="label-hint">(seconds to wait for answer)</span></label>
+        <input type="number" name="call_timeout" value="{{ cfg.call_timeout or 60 }}" min="5" max="120" />
+      </div>
+      <div class="form-group">
+        <label>Max Call Duration <span class="label-hint">(seconds; 0 stays on until they hang up)</span></label>
+        <input type="number" name="call_max_duration" value="{{ cfg.call_max_duration }}" min="0" max="7200" />
+      </div>
+      <div class="form-group">
+        <label>Max Ring Seconds</label>
+        <input type="number" name="max_ring_seconds" value="{{ cfg.max_ring_seconds or 45 }}" min="10" max="120" step="1" />
+      </div>
+      <div class="form-group">
+        <label>Opening Delay Seconds</label>
+        <input type="number" name="answered_speak_delay_seconds" value="{{ cfg.answered_speak_delay_seconds or 1.5 }}" min="0" max="10" step="0.1" />
+      </div>
+      <div class="form-group">
+        <label>Human Audio Timeout</label>
+        <input type="number" name="human_audio_timeout_seconds" value="{{ cfg.human_audio_timeout_seconds or 8 }}" min="0" max="20" step="0.5" />
+      </div>
+      <div class="form-group">
+        <label>Call Cooldown Seconds</label>
+        <input type="number" name="call_cooldown_seconds" value="{{ cfg.call_cooldown_seconds or 10 }}" min="0" max="120" step="1" />
+      </div>
+      <div class="form-group">
+        <label>STT Retry Count</label>
+        <input type="number" name="stt_retry_count" value="{{ cfg.stt_retry_count or 2 }}" min="0" max="5" />
+      </div>
+      <div class="form-group">
+        <label>Answer Confirm Polls</label>
+        <input type="number" name="answer_confirm_polls" value="{{ cfg.answer_confirm_polls or 2 }}" min="1" max="5" />
+      </div>
+      <div class="form-group">
+        <label class="check-row">
+          <input type="checkbox" name="wait_for_human_audio" {% if cfg.wait_for_human_audio %}checked{% endif %} />
+          Wait for human audio
+        </label>
+      </div>
+      <div class="form-group">
+        <label class="check-row">
+          <input type="checkbox" name="tts_warmup" {% if cfg.tts_warmup %}checked{% endif %} />
+          TTS warmup cache
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">Save Settings</button>
+    <span class="form-actions-hint">Saved to <code>dialer_config.json</code> — env vars in <code>.env</code> take precedence at runtime.</span>
+  </div>
+
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let gvAccounts = {{ gv_accounts | tojson }};
+
+function esc(value) {
+  return String(value || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+}
+
+function renderAccounts() {
+  const root = document.getElementById('accountRows');
+  const a = gvAccounts[0];
+  if (!a) {
+    root.innerHTML = '<div class="field-hint">No Main line saved yet. Enter the Google account below.</div>';
+    return;
+  }
+  editAccount(a.id);
+  root.innerHTML = `
+    <div class="panel" style="margin:0 0 .6rem;padding:1rem">
+      <strong>${esc(a.name || 'Main line')}</strong> &middot; ${esc(a.email)}
+      <div class="field-hint">Profile: ${esc(a.profile_name)} &middot; Audio: ${a.audio_ready ? 'configured' : 'missing'} &middot; Session: ${a.session_ready ? 'verified' : 'connect required'}${a.has_password ? ' &middot; encrypted password saved' : ''}</div>
+      <div class="form-actions" style="margin-top:.6rem">
+        <button type="button" class="btn" onclick="connectAccount('${a.id}')">Connect / Verify</button>
+        <span id="gvStatus-${a.id}" class="field-hint">${esc(a.connect_message || '')}</span>
+      </div>
+    </div>`;
+}
+
+function editAccount(id) {
+  const a = gvAccounts.find(x => x.id === id); if (!a) return;
+  gvId.value=a.id; gvName.value=a.name; gvEmail.value=a.email; gvPassword.value='';
+  gvProfile.value=a.profile_name; gvLoopback.value=a.loopback_device; gvCapture.value=a.capture_device; gvEnabled.checked=a.enabled;
+}
+
+async function refreshAccounts() {
+  const r = await fetch('/api/gv-accounts'); const data = await r.json();
+  if (data.ok) { gvAccounts = data.accounts; renderAccounts(); }
+}
+
+async function saveAccount() {
+  const err = document.getElementById('accountError'); err.style.display='none';
+  const payload = {id:gvId.value || undefined,name:gvName.value,email:gvEmail.value,password:gvPassword.value,profile_name:gvProfile.value,loopback_device:gvLoopback.value,capture_device:gvCapture.value,enabled:gvEnabled.checked};
+  const r = await fetch('/api/gv-accounts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const data = await r.json();
+  if (!data.ok) { err.textContent=data.error || data.detail || 'Save failed'; err.style.display='block'; return; }
+  await refreshAccounts();
+}
+
+async function connectAccount(id) {
+  await fetch('/api/gv-accounts/'+id+'/connect',{method:'POST'});
+  const poll = setInterval(async () => {
+    await refreshAccounts();
+    const a=gvAccounts.find(x=>x.id===id);
+    if (!a || !['connecting','verification_required'].includes(a.connect_status)) clearInterval(poll);
+  }, 2000);
+}
+
+renderAccounts();
+
+async function saveSettings(e) {
+  e.preventDefault();
+  const form = document.getElementById('settingsForm');
+  const data = Object.fromEntries(new FormData(form).entries());
+  data.wait_for_human_audio = form.elements.wait_for_human_audio.checked;
+  data.tts_warmup = form.elements.tts_warmup.checked;
+  const alert = document.getElementById('saveAlert');
+  const errEl = document.getElementById('saveError');
+  alert.style.display = 'none';
+  errEl.style.display = 'none';
+
+  try {
+    const resp = await fetch('/api/settings', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data),
+    });
+    const result = await resp.json();
+    if (result.ok) {
+      alert.style.display = 'block';
+      setTimeout(() => alert.style.display = 'none', 3000);
+    } else {
+      errEl.textContent = result.error || 'Save failed';
+      errEl.style.display = 'block';
+    }
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  }
+}
+</script>
+{% endblock %}

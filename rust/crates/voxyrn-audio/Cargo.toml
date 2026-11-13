@@ -1,0 +1,12 @@
+[package]
+name = "voxyrn-audio"
+version = "0.1.0"
+edition = "2021"
+description = "Realtime audio gate for the Voxyrn dialer"
+license = "MIT"
+
+[features]
+# Reserved for an NVIDIA build (ort or candle). The ARM VPS does not enable this.
+cuda = []
+
+[dependencies]

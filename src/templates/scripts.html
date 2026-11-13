@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% set active_page = "scripts" %}
+{% block title %}Call script — Voxyrn{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2 class="page-title">Call script</h2>
+    <p class="page-sub">The agent says this script. A model may only shorten a line, and a price that is not written here is thrown out.</p>
+  </div>
+</div>
+<div class="panel">
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="scriptPick">Script</label>
+      <select id="scriptPick"></select>
+    </div>
+    <div class="form-group">
+      <label for="scriptName">Name</label>
+      <input id="scriptName" type="text" placeholder="B2B appointment" />
+    </div>
+    <div class="form-group">
+      <label for="scriptVoice">Voice for this script</label>
+      <select id="scriptVoice"></select>
+    </div>
+    <div class="form-group">
+      <label for="speed">Speed</label>
+      <input id="speed" type="number" min="0.7" max="1.3" step="0.05" value="1" />
+    </div>
+    <div class="form-group">
+      <label for="pitch">Pitch (espeak only, -1 to 1)</label>
+      <input id="pitch" type="number" min="-1" max="1" step="0.1" value="0" />
+    </div>
+    <div class="form-group">
+      <label for="pause">Pause between clauses (seconds)</label>
+      <input id="pause" type="number" min="0" max="0.6" step="0.05" value="0.15" />
+    </div>
+  </div>
+  <div class="form-group"><label for="compliance">Compliance — identify caller and company, mention opt-out</label><textarea id="compliance" rows="2"></textarea></div>
+  <div class="form-group"><label for="opener">Opener</label><textarea id="opener" rows="2"></textarea></div>
+  <div class="form-group"><label for="qualify">Qualification question</label><textarea id="qualify" rows="2"></textarea></div>
+  <div class="form-group"><label for="value">Value pitch</label><textarea id="value" rows="2"></textarea></div>
+  <div class="form-group"><label for="closeLine">Closing / booking</label><textarea id="closeLine" rows="2"></textarea></div>
+  <div class="form-group"><label for="voicemail">Voicemail</label><textarea id="voicemail" rows="2"></textarea></div>
+  <div class="form-group"><label for="optOut">Do-not-call line</label><textarea id="optOut" rows="2"></textarea></div>
+  <p class="field-hint">Variables: {first_name} {company} {product} {agent_name}</p>
+  <div id="objectionFields"></div>
+  <div class="form-actions">
+    <label class="check-row"><input id="useOnCalls" type="checkbox" /> Use this script on live calls</label>
+    <button type="button" class="btn btn-primary" id="saveScript">Save script</button>
+    <button type="button" class="btn" id="newScript">New script</button>
+    <span id="scriptMsg" class="field-hint"></span>
+  </div>
+</div>
+<div class="panel">
+  <div class="panel-header"><h3 class="panel-title">Test the script</h3></div>
+  <p class="page-sub">Type what the prospect says, or hold Speak and talk. Nothing is dialed.</p>
+  <div class="form-grid">
+    <div class="form-group"><label for="varName">First name</label><input id="varName" value="Sam" /></div>
+    <div class="form-group"><label for="varCompany">Company</label><input id="varCompany" value="INDUS Web Agency" /></div>
+    <div class="form-group"><label for="varAgent">Agent name</label><input id="varAgent" value="Alex" /></div>
+    <div class="form-group"><label for="varProduct">Product</label><input id="varProduct" value="" /></div>
+  </div>
+  <div class="form-group"><label for="prospect">Prospect says</label><textarea id="prospect" rows="2">Who is this?</textarea></div>
+  <div class="form-actions">
+    <button type="button" class="btn btn-primary" id="hearBtn">Hear the reply</button>
+    <button type="button" class="btn" id="speakBtn">Hold to speak</button>
+    <button type="button" class="btn" id="evalBtn">Run the 10 simulated prospects</button>
+  </div>
+  <p id="agentLine" class="page-sub"></p>
+  <audio id="replyAudio" controls style="width:100%;margin-top:8px"></audio>
+  <pre id="evalOut" class="field-hint"></pre>
+  <h3 class="panel-title">Where this script drops</h3>
+  <pre id="analyticsOut" class="field-hint"></pre>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const objectionNames = ["not_interested","too_busy","send_email","price","have_provider","who_is_this","call_back_later"];
+let scripts = [];
+let voices = [];
+let activeScriptId = "";
+function field(id){return document.getElementById(id)}
+function current(){return scripts.find(s => s.script_id === field("scriptPick").value) || scripts[0]}
+function fill(script){
+  if(!script) return;
+  ["compliance","opener","qualify","value","voicemail"].forEach(id => { field(id).value = script[id] || ""; });
+  field("closeLine").value = script.close || "";
+  field("optOut").value = script.opt_out || "";
+  field("speed").value = script.speed || 1;
+  field("pitch").value = script.pitch || 0;
+  field("pause").value = script.pause_seconds || 0.15;
+  field("varProduct").value = script.product || "";
+  field("scriptName").value = script.name || "";
+  field("scriptVoice").value = script.voice_id || "";
+  field("useOnCalls").checked = script.script_id === activeScriptId;
+  objectionNames.forEach(key => {
+    const node = field("obj_"+key);
+    if(node) node.value = (script.objections || {})[key] || "";
+  });
+  loadAnalytics(script.script_id);
+}
+function renderObjections(script){
+  field("objectionFields").innerHTML = objectionNames.map(key =>
+    `<div class="form-group"><label for="obj_${key}">Objection — ${key.replaceAll("_"," ")}</label><textarea id="obj_${key}" rows="2"></textarea></div>`
+  ).join("");
+  fill(script);
+}
+function payload(){
+  const script = current();
+  const objections = {};
+  objectionNames.forEach(key => { objections[key] = field("obj_"+key).value; });
+  const name = field("scriptName").value.trim() || (script && script.name) || "Custom script";
+  const scriptId = (script && script.script_id && script.script_id !== "script")
+    ? script.script_id
+    : name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "custom-script";
+  return Object.assign({}, script, {
+    script_id: scriptId,
+    name,
+    use_on_calls: field("useOnCalls").checked,
+    compliance: field("compliance").value,
+    opener: field("opener").value,
+    qualify: field("qualify").value,
+    value: field("value").value,
+    close: field("closeLine").value,
+    voicemail: field("voicemail").value,
+    opt_out: field("optOut").value,
+    product: field("varProduct").value,
+    voice_id: field("scriptVoice").value,
+    speed: Number(field("speed").value),
+    pitch: Number(field("pitch").value),
+    pause_seconds: Number(field("pause").value),
+    objections
+  });
+}
+async function loadAnalytics(id){
+  const r = await fetch("/api/scripts/"+encodeURIComponent(id)+"/analytics");
+  const data = await r.json();
+  field("analyticsOut").textContent = JSON.stringify(data.analytics || {}, null, 2);
+}
+async function boot(){
+  const [s, v] = await Promise.all([fetch("/api/scripts"), fetch("/api/voices")]);
+  const scriptData = await s.json();
+  scripts = scriptData.scripts;
+  activeScriptId = scriptData.active_script_id || "";
+  voices = (await v.json()).voices;
+  const selected = field("scriptPick").value;
+  field("scriptPick").innerHTML = scripts.map(item => `<option value="${item.script_id}">${item.name}</option>`).join("");
+  if (selected && scripts.some(item => item.script_id === selected)) field("scriptPick").value = selected;
+  field("scriptVoice").innerHTML = voices.map(item => `<option value="${item.voice_id}">${item.label}</option>`).join("");
+  renderObjections(current());
+}
+field("scriptPick").addEventListener("change", () => { renderObjections(current()); });
+field("newScript").addEventListener("click", () => {
+  const base = scripts.find(item => item.script_id === "b2b-appointment") || scripts[0] || {};
+  const name = "Custom script";
+  const copy = Object.assign({}, base, {script_id: "custom-" + Date.now().toString(36), name, objections: Object.assign({}, base.objections || {})});
+  scripts.push(copy);
+  field("scriptPick").innerHTML = scripts.map(item => `<option value="${item.script_id}">${item.name}</option>`).join("");
+  field("scriptPick").value = copy.script_id;
+  renderObjections(copy);
+  field("useOnCalls").checked = true;
+});
+field("saveScript").addEventListener("click", async () => {
+  const r = await fetch("/api/scripts", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload())});
+  const data = await r.json();
+  field("scriptMsg").textContent = data.ok ? "Saved." : (data.error || data.detail || "Not saved");
+  if (data.ok) boot();
+});
+field("hearBtn").addEventListener("click", async () => {
+  const body = Object.assign(payload(), {
+    prospect: field("prospect").value,
+    first_name: field("varName").value,
+    company: field("varCompany").value,
+    agent_name: field("varAgent").value
+  });
+  const r = await fetch("/api/scripts/test", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
+  const data = await r.json();
+  field("agentLine").textContent = data.line || "";
+  if (data.audio) field("replyAudio").src = data.audio;
+  loadAnalytics(body.script_id);
+});
+const speakBtn = field("speakBtn");
+let recorder = null;
+let speakChunks = [];
+speakBtn.addEventListener("mousedown", startSpeak);
+speakBtn.addEventListener("mouseup", stopSpeak);
+speakBtn.addEventListener("mouseleave", () => { if (recorder && recorder.state === "recording") stopSpeak(); });
+speakBtn.addEventListener("touchstart", (event) => { event.preventDefault(); startSpeak(); });
+speakBtn.addEventListener("touchend", (event) => { event.preventDefault(); stopSpeak(); });
+async function startSpeak(){
+  if (!navigator.mediaDevices || recorder) return;
+  const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+  speakChunks = [];
+  recorder = new MediaRecorder(stream);
+  recorder.ondataavailable = (event) => { if (event.data.size) speakChunks.push(event.data); };
+  recorder.start();
+  speakBtn.textContent = "Listening…";
+}
+async function stopSpeak(){
+  if (!recorder) return;
+  const active = recorder;
+  const stream = active.stream;
+  recorder = null;
+  speakBtn.textContent = "Hold to speak";
+  const blob = await new Promise((resolve) => {
+    active.onstop = () => resolve(new Blob(speakChunks, {type: active.mimeType || "audio/webm"}));
+    active.stop();
+  });
+  stream.getTracks().forEach((track) => track.stop());
+  const r = await fetch("/api/scripts/transcribe", {method:"POST", headers:{"Content-Type": blob.type || "application/octet-stream"}, body: blob});
+  const data = await r.json();
+  if (!data.ok) { field("agentLine").textContent = data.detail || "Could not hear that."; return; }
+  field("prospect").value = data.text || "";
+  if (data.text) field("hearBtn").click();
+}
+field("evalBtn").addEventListener("click", async () => {
+  const r = await fetch("/api/scripts/evaluate", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(Object.assign(payload(), {
+    first_name: field("varName").value, company: field("varCompany").value, agent_name: field("varAgent").value
+  }))});
+  const data = await r.json();
+  field("evalOut").textContent = `Pass rate ${data.pass_rate} (${data.passed}/${data.total})\n` + (data.details||[]).map(row => (row.ok?"ok":"FAIL")+" "+row.utterance+" → "+row.line).join("\n");
+});
+boot();
+</script>
+{% endblock %}

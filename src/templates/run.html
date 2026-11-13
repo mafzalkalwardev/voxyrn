@@ -1,0 +1,488 @@
+{% extends "base.html" %}
+{% set active_page = "run" %}
+
+{% block title %}Live Run — Voxyrn{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2 class="page-title">Live Run Console</h2>
+    <p class="page-sub">Start, monitor, and stop the Voxyrn sales automation agent</p>
+  </div>
+</div>
+
+<!-- Compliance warning -->
+<div class="compliance-banner">
+  <div class="compliance-icon">⚖</div>
+  <div class="compliance-text">
+    <strong>Legal Compliance Notice</strong><br>
+    You are responsible for complying with TCPA, FDCPA, DNC Registry rules, state call-recording laws,
+    Google Voice Terms of Service, and all other applicable regulations before dialing.
+    Do not call numbers on federal or state Do-Not-Call lists without express written consent.
+    Obtain required consent for recording. Voxyrn calling automation does not guarantee legal compliance
+    on your behalf. By starting a run, you accept full legal responsibility.
+  </div>
+</div>
+
+<!-- Run controls -->
+<div class="panel">
+  <div class="panel-header">
+    <h3 class="panel-title">Run Controls</h3>
+    <span class="status-pill" id="runStatusPill">{{ run_state.status | upper }}</span>
+  </div>
+
+  <div class="run-grid">
+    <!-- Params -->
+    <div class="run-params">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Contacts File</label>
+          <input type="text" id="rContacts" value="{{ cfg.contacts_file or 'data/contacts.xlsx' }}" />
+        </div>
+        <div class="form-group">
+          <label>Chrome Profile</label>
+          <input type="text" id="rProfile" value="{{ cfg.profile_name or 'sales_profile' }}" />
+        </div>
+        <div class="form-group">
+          <label>Max Calls (limit)</label>
+          <input type="number" id="rLimit" value="10" min="1" max="500" />
+        </div>
+        <div class="form-group">
+          <label>Callback Number</label>
+          <input type="text" id="rCallback" value="{{ cfg.callback_number or '' }}" placeholder="+15551234567" />
+        </div>
+        <div class="form-group">
+          <label>Loopback Device</label>
+          <input type="text" id="rLoopback" value="{{ cfg.loopback_device or 'CABLE Input' }}" />
+        </div>
+        <div class="form-group">
+          <label>Capture Device</label>
+          <input type="text" id="rCapture" value="{{ cfg.capture_device or 'default' }}" />
+        </div>
+        <div class="form-group">
+          <label class="check-row">
+            <input type="checkbox" id="rHeadless" {% if cfg.chrome_headless is not defined or cfg.chrome_headless %}checked{% endif %} />
+            Headless Google Voice (no Chrome window)
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="check-row">
+            <input type="checkbox" id="rListenIn" {% if cfg.live_listen_enabled %}checked{% endif %} onchange="toggleListenIn(this.checked)" />
+            Listen to both sides on Speakers
+          </label>
+          <div class="field-hint">Off by default (silent). Recordings always keep both voices — turn this on only when you want to hear the live call.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="run-buttons">
+      <button class="btn btn-success run-btn" id="btnStart" onclick="confirmAndStart()">
+        ▶ Start Live Run
+      </button>
+      <button class="btn btn-amber run-btn" id="btnDryRun" onclick="startDryRun()">
+        ⚙ Dry Run (no dial)
+      </button>
+      <button class="btn btn-danger run-btn" id="btnStop" onclick="stopRun()" disabled>
+        ■ Stop Run
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Single test call -->
+<div class="panel">
+  <div class="panel-header">
+    <h3 class="panel-title">Single Test Call</h3>
+  </div>
+
+  <div class="run-grid">
+    <div class="run-params">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" id="singlePhone" placeholder="+15551234567" />
+        </div>
+        <div class="form-group">
+          <label>Contact / Company Name</label>
+          <input type="text" id="singleName" placeholder="Test Business" />
+        </div>
+        <div class="form-group">
+          <label>Mode</label>
+          <label class="check-row">
+            <input type="checkbox" id="singleDryRun" />
+            Dry run only
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="run-buttons">
+      <button class="btn btn-primary run-btn" id="btnSingleCall" onclick="confirmSingleCall()">
+        Start Single Test Call
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="liveCallResultBanner" class="live-call-result-banner" style="display:none">
+  <div>
+    <div class="live-call-result-kicker">Call finished</div>
+    <div class="live-call-result-title" id="liveCallResultTitle">—</div>
+    <div class="live-call-result-detail" id="liveCallResultDetail"></div>
+  </div>
+</div>
+
+<div id="liveCallPanel" class="live-call-panel live-call-panel--hidden">
+  <div class="live-call-panel-label">Realtime call</div>
+  <div class="live-call-phase" id="liveCallPhase">Idle</div>
+  <div class="live-call-who" id="liveCallWho">—</div>
+  <div class="live-call-msg" id="liveCallMsg"></div>
+</div>
+
+<!-- State cards -->
+<div class="state-cards" id="stateCards">
+  <div class="state-card" id="sc-idle">
+    <div class="state-card-label">IDLE</div>
+  </div>
+  <div class="state-card" id="sc-dialing">
+    <div class="state-card-label">DIALING</div>
+  </div>
+  <div class="state-card" id="sc-ringing">
+    <div class="state-card-label">RINGING</div>
+  </div>
+  <div class="state-card" id="sc-connected">
+    <div class="state-card-label">CONNECTED</div>
+  </div>
+  <div class="state-card" id="sc-voicemail">
+    <div class="state-card-label">VOICEMAIL</div>
+  </div>
+  <div class="state-card" id="sc-ended">
+    <div class="state-card-label">ENDED</div>
+  </div>
+  <div class="state-card" id="sc-failed">
+    <div class="state-card-label">FAILED</div>
+  </div>
+</div>
+
+<!-- Live log -->
+<div class="panel">
+  <div class="panel-header">
+    <h3 class="panel-title">Live Output</h3>
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <label style="font-size:.8rem;color:var(--muted)">
+        <input type="checkbox" id="autoScrollChk" checked /> Auto-scroll
+      </label>
+      <button class="btn btn-ghost btn-sm" onclick="clearLog()">Clear</button>
+    </div>
+  </div>
+  <div class="log-viewer" id="liveLog"><span class="log-idle">Waiting for run…</span></div>
+</div>
+
+<!-- Compliance confirm modal -->
+<div id="complianceModal" class="modal-backdrop" style="display:none">
+  <div class="modal">
+    <h3 class="modal-title">Confirm Live Dial</h3>
+    <p>By clicking <strong>I Accept &amp; Start</strong>, you confirm that:</p>
+    <ul class="modal-list">
+      <li>You have reviewed all contacts and hold required consent to call them.</li>
+      <li>No contacted numbers appear on federal or state DNC registries without written consent.</li>
+      <li>You comply with TCPA, state telemarketing laws, and Google Voice Terms of Service.</li>
+      <li>You are solely responsible for legal compliance and any resulting liability.</li>
+    </ul>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="doStart()">I Accept &amp; Start</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Single test call confirm modal -->
+<div id="singleCallModal" class="modal-backdrop" style="display:none">
+  <div class="modal">
+    <h3 class="modal-title">Confirm Single Live Test</h3>
+    <p>By clicking <strong>I Accept &amp; Dial One Number</strong>, you confirm that this number may be called now and that you accept responsibility for legal compliance.</p>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="doSingleCall()">I Accept &amp; Dial One Number</button>
+      <button class="btn btn-ghost" onclick="closeSingleCallModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let sseSource = null;
+let logIndex = 0;
+
+function buildParams(dryRun) {
+  return {
+    contacts_file: document.getElementById('rContacts').value,
+    profile_name:  document.getElementById('rProfile').value,
+    limit:         parseInt(document.getElementById('rLimit').value) || 10,
+    callback_number: document.getElementById('rCallback').value,
+    loopback_device: document.getElementById('rLoopback').value,
+    capture_device:  document.getElementById('rCapture').value,
+    headless: document.getElementById('rHeadless').checked,
+    live_listen_enabled: document.getElementById('rListenIn').checked,
+    dry_run: dryRun,
+  };
+}
+
+function buildSingleParams() {
+  return {
+    phone: document.getElementById('singlePhone').value,
+    name: document.getElementById('singleName').value,
+    profile_name: document.getElementById('rProfile').value,
+    callback_number: document.getElementById('rCallback').value,
+    loopback_device: document.getElementById('rLoopback').value,
+    capture_device: document.getElementById('rCapture').value,
+    headless: document.getElementById('rHeadless').checked,
+    live_listen_enabled: document.getElementById('rListenIn').checked,
+    dry_run: document.getElementById('singleDryRun').checked,
+  };
+}
+
+function confirmAndStart() {
+  document.getElementById('complianceModal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('complianceModal').style.display = 'none';
+}
+
+async function doStart() {
+  closeModal();
+  await startRun(false);
+}
+
+async function startDryRun() {
+  await startRun(true);
+}
+
+function confirmSingleCall() {
+  const phoneInput = document.getElementById('singlePhone');
+  const phone = phoneInput.value.trim();
+  if (!phone) {
+    appendLog('[ERROR] Enter a phone number for the single test call.');
+    phoneInput.focus();
+    return;
+  }
+  if (document.getElementById('singleDryRun').checked) {
+    startSingleCall();
+    return;
+  }
+  document.getElementById('singleCallModal').style.display = 'flex';
+}
+
+function closeSingleCallModal() {
+  document.getElementById('singleCallModal').style.display = 'none';
+}
+
+async function doSingleCall() {
+  closeSingleCallModal();
+  await startSingleCall();
+}
+
+async function startRun(dryRun) {
+  const r = await fetch('/api/run/start', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(buildParams(dryRun)),
+  });
+  const data = await r.json();
+  if (!data.ok) {
+    appendLog('[ERROR] ' + (data.error || 'Start failed'));
+    return;
+  }
+  appendLog('[INFO] Run started (PID ' + data.pid + ')' + (dryRun ? ' [DRY RUN]' : ''));
+  setRunningUI(true);
+  startSSE();
+}
+
+async function startSingleCall() {
+  const params = buildSingleParams();
+  const r = await fetch('/api/run/single-call', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(params),
+  });
+  const data = await r.json();
+  if (!r.ok || !data.ok) {
+    appendLog('[ERROR] ' + (data.detail || data.error || 'Single test call start failed'));
+    return;
+  }
+  appendLog('[INFO] Single test call started (PID ' + data.pid + ') for ' + data.phone + (params.dry_run ? ' [DRY RUN]' : ''));
+  setRunningUI(true);
+  startSSE();
+}
+
+async function stopRun() {
+  const r = await fetch('/api/run/stop', { method: 'POST' });
+  const data = await r.json();
+  appendLog('[INFO] Stop requested: ' + data.message);
+}
+
+function startSSE() {
+  if (sseSource) sseSource.close();
+  logIndex = document.getElementById('liveLog').querySelectorAll('.log-line').length;
+  sseSource = new EventSource('/api/run/stream?since=' + logIndex);
+  sseSource.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.done) {
+      appendLog('[INFO] Run finished — status: ' + msg.state.status);
+      setRunningUI(false);
+      sseSource.close();
+      sseSource = null;
+      return;
+    }
+    if (msg.heartbeat) {
+      updateStatusPill(msg.state.status);
+      updateStateCards(msg.state.status);
+      return;
+    }
+    if (msg.line !== undefined) {
+      appendLog(msg.line);
+      detectState(msg.line);
+    }
+  };
+  sseSource.onerror = () => {
+    appendLog('[WARN] SSE connection dropped — polling…');
+    sseSource.close();
+    sseSource = null;
+    pollStatus();
+  };
+}
+
+function pollStatus() {
+  setTimeout(async () => {
+    const r = await fetch('/api/run/status');
+    const state = await r.json();
+    updateStatusPill(state.status);
+    updateStateCards(state.status);
+    if (state.is_running) {
+      // Fetch new lines
+      const lr = await fetch('/api/run/lines?since=' + logIndex);
+      const ld = await lr.json();
+      ld.lines.forEach(l => appendLog(l));
+      logIndex = ld.next_index;
+      pollStatus();
+    } else {
+      setRunningUI(false);
+    }
+  }, 1500);
+}
+
+function appendLog(text) {
+  const viewer = document.getElementById('liveLog');
+  const idle = viewer.querySelector('.log-idle');
+  if (idle) idle.remove();
+
+  const line = document.createElement('div');
+  line.className = 'log-line';
+
+  // Colour-code by keywords
+  const l = text.toLowerCase();
+  if (l.includes('error') || l.includes('failed') || l.includes('fail')) line.classList.add('log-error');
+  else if (l.includes('warn')) line.classList.add('log-warn');
+  else if (l.includes('connected') || l.includes('dialing') || l.includes('ringing')) line.classList.add('log-active');
+  else if (l.includes('voicemail')) line.classList.add('log-voicemail');
+  else if (l.includes('ended') || l.includes('complete') || l.includes('done')) line.classList.add('log-done');
+
+  const ts = document.createElement('span');
+  ts.className = 'log-ts';
+  ts.textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
+  line.appendChild(ts);
+  line.appendChild(document.createTextNode(text));
+  viewer.appendChild(line);
+
+  if (document.getElementById('autoScrollChk').checked) {
+    viewer.scrollTop = viewer.scrollHeight;
+  }
+}
+
+const STATE_KEYWORDS = {
+  'dialing': 'sc-dialing',
+  'ringing': 'sc-ringing',
+  'connected': 'sc-connected',
+  'voicemail': 'sc-voicemail',
+  'ended': 'sc-ended',
+  'failed': 'sc-failed',
+};
+
+function detectState(line) {
+  const l = line.toLowerCase();
+  for (const [kw, cardId] of Object.entries(STATE_KEYWORDS)) {
+    if (l.includes(kw)) {
+      highlightStateCard(cardId);
+    }
+  }
+}
+
+function highlightStateCard(activeId) {
+  document.querySelectorAll('.state-card').forEach(c => c.classList.remove('state-card--active'));
+  const el = document.getElementById(activeId);
+  if (el) el.classList.add('state-card--active');
+}
+
+function updateStateCards(status) {
+  const map = {
+    'running': 'sc-idle', 'idle': 'sc-idle',
+    'stopping': 'sc-ended', 'stopped': 'sc-ended',
+    'completed': 'sc-ended', 'failed': 'sc-failed',
+  };
+  if (map[status]) highlightStateCard(map[status]);
+}
+
+function updateStatusPill(status) {
+  const pill = document.getElementById('runStatusPill');
+  if (!pill) return;
+  pill.textContent = status.toUpperCase();
+  pill.className = 'status-pill status-pill--' + status;
+}
+
+function setRunningUI(running) {
+  document.getElementById('btnStart').disabled = running;
+  document.getElementById('btnDryRun').disabled = running;
+  document.getElementById('btnSingleCall').disabled = running;
+  document.getElementById('btnStop').disabled = !running;
+  const badge = document.getElementById('globalRunBadge');
+  if (badge) badge.style.display = running ? 'inline-block' : 'none';
+  updateStatusPill(running ? 'running' : 'idle');
+}
+
+function clearLog() {
+  document.getElementById('liveLog').innerHTML = '<span class="log-idle">Waiting for run…</span>';
+  logIndex = 0;
+}
+
+async function toggleListenIn(enabled) {
+  try {
+    const r = await fetch('/api/audio/listen-in', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ enabled: !!enabled }),
+    });
+    const data = await r.json();
+    appendLog('[AUDIO] ' + (data.message || (enabled ? 'Listen-in ON' : 'Listen-in OFF')));
+    if (data.enabled !== undefined) {
+      document.getElementById('rListenIn').checked = !!data.enabled;
+    }
+  } catch (err) {
+    appendLog('[ERROR] Listen-in toggle failed: ' + err.message);
+  }
+}
+
+// On page load: sync UI with current status
+(async () => {
+  const r = await fetch('/api/run/status');
+  const state = await r.json();
+  updateStatusPill(state.status);
+  updateStateCards(state.status);
+  if (state.is_running) {
+    setRunningUI(true);
+    startSSE();
+  }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+[Unit]
+Description=Voxyrn operator console
+After=network-online.target voxyrn-audio.service
+Wants=network-online.target voxyrn-audio.service
+
+[Service]
+Type=simple
+User=voxyrn
+Group=voxyrn
+SupplementaryGroups=audio
+WorkingDirectory=@APP_DIR@
+Environment=XDG_RUNTIME_DIR=/run/voxyrn
+Environment=PULSE_SERVER=unix:/run/voxyrn/pulse/native
+Environment=VOXYRN_SERVER=1
+Environment=VOXYRN_HOST=127.0.0.1
+Environment=VOXYRN_PORT=8787
+Environment=VOXYRN_COOKIE_SECURE=1
+Environment=VOXYRN_TRUST_PROXY=1
+# Default Xvfb screen. :99 belongs to laneora-chrome on this host. .env overrides
+# this via VOXYRN_DISPLAY or DISPLAY because EnvironmentFile is loaded after.
+Environment=DISPLAY=:98
+Environment=VOXYRN_VNC_PORT=5902
+Environment=VOXYRN_NOVNC_PORT=6081
+EnvironmentFile=-@APP_DIR@/.env
+# NoNewPrivileges blocks Chromium's setuid sandbox, so the browser runs unsandboxed.
+# PrivateTmp hides /tmp/.X11-unix; bind the host socket so Chromium can open Xvfb.
+Environment=VOXYRN_CHROMIUM_NO_SANDBOX=1
+ExecStart=@APP_DIR@/.venv/bin/python -m src.web_app
+Restart=always
+RestartSec=5
+MemoryMax=8G
+MemoryHigh=6G
+NoNewPrivileges=true
+PrivateTmp=true
+BindPaths=/tmp/.X11-unix
+
+[Install]
+WantedBy=multi-user.target
