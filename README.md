@@ -14,9 +14,9 @@ This tree is the Voxyrn rebuild of the Routelix console. The Python operator app
 
 <p>
   <img src="https://komarev.com/ghpvc/?username=mafzalkalwardev&label=Project%20Views&color=0ea5e9&style=for-the-badge" alt="Project views" />
-  <img src="https://img.shields.io/github/stars/mafzalkalwardev/Voxyrn?style=for-the-badge&color=22c55e" alt="GitHub stars" />
-  <img src="https://img.shields.io/github/forks/mafzalkalwardev/Voxyrn?style=for-the-badge&color=f59e0b" alt="GitHub forks" />
-  <img src="https://img.shields.io/github/license/mafzalkalwardev/Voxyrn?style=for-the-badge&color=64748b" alt="GitHub license" />
+  <img src="https://img.shields.io/github/stars/mafzalkalwardev/voxyrn?style=for-the-badge&color=22c55e" alt="GitHub stars" />
+  <img src="https://img.shields.io/github/forks/mafzalkalwardev/voxyrn?style=for-the-badge&color=f59e0b" alt="GitHub forks" />
+  <img src="https://img.shields.io/github/license/mafzalkalwardev/voxyrn?style=for-the-badge&color=64748b" alt="GitHub license" />
 </p>
 
 <p>

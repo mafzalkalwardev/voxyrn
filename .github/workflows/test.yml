@@ -26,6 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           python -c "from pathlib import Path; src=Path('requirements.txt').read_text(encoding='utf-8'); Path('requirements-ci.txt').write_text(''.join(line for line in src.splitlines(True) if not line.startswith('llama-cpp-python')), encoding='utf-8')"
           pip install -r requirements-ci.txt
+          pip install "pytest>=8.0,<9" "pytest-mock>=3.12,<4"
 
       - name: Run tests
         env:
