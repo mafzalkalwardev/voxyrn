@@ -111,6 +111,9 @@ def test_dashboard_loads(client):
     assert r.status_code == 200
     assert "VOXYRN" in r.text
     assert "/static/voxyrn-mark.svg" in r.text
+    assert "voxyrn_theme" in r.text
+    toggle = client.get("/static/theme-toggle.js")
+    assert "const storageKey = 'voxyrn_theme'" in toggle.text
 
 
 def test_preflight_page_loads(client):

@@ -1,24 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
-  <title id="title">Voxyrn icon</title>
-  <desc id="desc">A geometric route-shaped R with a conversion node</desc>
-  <defs>
-    <linearGradient id="route" x1="84" y1="74" x2="412" y2="438" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#22D3EE"/>
-      <stop offset="0.55" stop-color="#0891B2"/>
-      <stop offset="1" stop-color="#0E7490"/>
-    </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#06172D" flood-opacity=".28"/>
-    </filter>
-  </defs>
-  <rect x="24" y="24" width="464" height="464" rx="112" fill="#0C2340"/>
-  <rect x="36" y="36" width="440" height="440" rx="100" fill="none" stroke="#1A3A5C" stroke-width="4"/>
-  <g filter="url(#shadow)" fill="none" stroke="url(#route)" stroke-width="38"
-     stroke-linecap="round" stroke-linejoin="round">
-    <path d="M142 390V122c0-13 11-24 24-24h108c56 0 96 35 96 88s-40 88-96 88H142"/>
-    <path d="M270 274l104 116"/>
-  </g>
-  <circle cx="142" cy="390" r="25" fill="#25D366"/>
-  <circle cx="374" cy="390" r="18" fill="#25D366"/>
-  <circle cx="142" cy="390" r="10" fill="#D9FFE6"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Voxyrn</title>
+  <desc id="desc">A voice wave that turns into a forward route</desc>
+  <rect width="64" height="64" rx="16" fill="#1C1410"/>
+  <path d="M9 43c4.4-12 8.8-12 13.2 0s8.8 12 13.2 0 8.8-12 13.2 0" fill="none" stroke="#F6F1EA" stroke-width="3.4" stroke-linecap="round"/>
+  <path d="M40 18l14 14-14 14" fill="none" stroke="#E36A2E" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="54" cy="32" r="3.1" fill="#E36A2E"/>
 </svg>

@@ -56,7 +56,7 @@
   <p class="page-sub">Type what the prospect says, or hold Speak and talk. Nothing is dialed.</p>
   <div class="form-grid">
     <div class="form-group"><label for="varName">First name</label><input id="varName" value="Sam" /></div>
-    <div class="form-group"><label for="varCompany">Company</label><input id="varCompany" value="INDUS Web Agency" /></div>
+    <div class="form-group"><label for="varCompany">Company</label><input id="varCompany" value="Northline" /></div>
     <div class="form-group"><label for="varAgent">Agent name</label><input id="varAgent" value="Alex" /></div>
     <div class="form-group"><label for="varProduct">Product</label><input id="varProduct" value="" /></div>
   </div>
@@ -91,7 +91,8 @@ function fill(script){
   field("pause").value = script.pause_seconds || 0.15;
   field("varProduct").value = script.product || "";
   field("scriptName").value = script.name || "";
-  field("scriptVoice").value = script.voice_id || "";
+  const voiceIds = voices.map(item => item.voice_id);
+  field("scriptVoice").value = voiceIds.includes(script.voice_id) ? script.voice_id : (voiceIds[0] || "");
   field("useOnCalls").checked = script.script_id === activeScriptId;
   objectionNames.forEach(key => {
     const node = field("obj_"+key);
@@ -138,9 +139,17 @@ async function loadAnalytics(id){
   field("analyticsOut").textContent = JSON.stringify(data.analytics || {}, null, 2);
 }
 async function boot(){
-  const [s, v] = await Promise.all([fetch("/api/scripts"), fetch("/api/voices")]);
+  let s;
+  let v;
+  try {
+    [s, v] = await Promise.all([fetch("/api/scripts"), fetch("/api/voices")]);
+    if (!s.ok || !v.ok) throw new Error("scripts unavailable");
+  } catch (_) {
+    field("scriptMsg").textContent = "Could not load scripts.";
+    return;
+  }
   const scriptData = await s.json();
-  scripts = scriptData.scripts;
+  scripts = scriptData.scripts || [];
   activeScriptId = scriptData.active_script_id || "";
   voices = (await v.json()).voices;
   const selected = field("scriptPick").value;

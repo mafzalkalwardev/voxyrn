@@ -105,6 +105,7 @@ def test_robots_sitemap_and_llms():
     assert manifest.status_code == 200
     assert "manifest" in manifest.headers["content-type"]
     assert manifest.json()["start_url"] == "/"
+    assert manifest.json()["theme_color"] == "#1C1410"
 
     icon = client.get("/favicon.ico")
     assert icon.status_code == 200

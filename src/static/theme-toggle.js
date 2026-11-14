@@ -1,23 +1,35 @@
 (function () {
   'use strict';
 
-  const storageKey = 'indus_theme';
+  const storageKey = 'voxyrn_theme';
+  const legacyKey = 'indus_theme';
 
   function applyTheme(theme) {
     const html = document.documentElement;
-    // Light keeps attribute unset so app.css light defaults + navy sidebar stay intact.
     if (theme === 'dark') html.setAttribute('data-theme', 'dark');
     else html.removeAttribute('data-theme');
   }
 
-  function getPreferredTheme() {
-    let theme = null;
+  function readStoredTheme() {
     try {
-      theme = localStorage.getItem(storageKey);
+      let theme = localStorage.getItem(storageKey);
+      if (theme !== 'light' && theme !== 'dark') {
+        const legacy = localStorage.getItem(legacyKey);
+        if (legacy === 'light' || legacy === 'dark') {
+          theme = legacy;
+          localStorage.setItem(storageKey, legacy);
+          localStorage.removeItem(legacyKey);
+        }
+      }
+      return theme === 'light' || theme === 'dark' ? theme : null;
     } catch (_) {
-      theme = null;
+      return null;
     }
-    if (theme === 'light' || theme === 'dark') return theme;
+  }
+
+  function getPreferredTheme() {
+    const theme = readStoredTheme();
+    if (theme) return theme;
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     return prefersDark ? 'dark' : 'light';
   }

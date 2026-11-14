@@ -7,7 +7,7 @@
   <meta name="description" content="{{ description }}" />
   <link rel="canonical" href="{{ canonical }}" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
-  <meta name="theme-color" content="#0C2340" />
+  <meta name="theme-color" content="#1C1410" />
   <meta name="application-name" content="Voxyrn" />
   <link rel="icon" href="/static/voxyrn-mark.svg" type="image/svg+xml" />
   <link rel="icon" href="/static/landing/favicon-32.png" type="image/png" sizes="32x32" />
@@ -31,15 +31,15 @@
   <style>
     :root {
       color-scheme: light;
-      --navy: #0c2340;
-      --ink: #14283f;
-      --muted: #3d5166;
-      --line: #d5e0ea;
-      --bg: #f4f7fb;
-      --card: #ffffff;
-      --sky: #0b6bcb;
-      --sky-d: #084f98;
-      --chip: #e7f3fc;
+      --navy: #1c1410;
+      --ink: #2a211c;
+      --muted: #6b5c52;
+      --line: #e4d8cc;
+      --bg: #f6f1ea;
+      --card: #fffcf8;
+      --sky: #c6531a;
+      --sky-d: #9a3c10;
+      --chip: #f8efe6;
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -76,7 +76,7 @@
     .brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-weight: 700; }
     .brand img { width: 36px; height: 36px; }
     .nav { display: flex; flex-wrap: wrap; gap: 4px 8px; }
-    .nav a { color: #d7e7f5; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; padding: 8px 8px; }
+    .nav a { color: #f3d2c2; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; padding: 8px 8px; }
     .nav a:hover { color: #fff; }
     .header-cta { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
     .btn {
@@ -87,7 +87,7 @@
     .btn-primary { background: var(--sky); color: #fff; }
     .btn-primary:hover { background: var(--sky-d); }
     .btn-secondary { background: #fff; color: var(--navy); border-color: var(--line); }
-    .btn-ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.45); }
+    .btn-ghost { background: transparent; color: #fff; border-color: rgba(246,241,234,.45); }
     .hero { padding: 48px 0 24px; }
     .hero-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: 36px; align-items: center; }
     .eyebrow { margin: 0 0 8px; color: var(--sky-d); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: .8rem; }
@@ -173,7 +173,7 @@
             <picture>
               <source type="image/avif" srcset="/static/landing/dashboard.avif" />
               <source type="image/webp" srcset="/static/landing/dashboard.webp" />
-              <img src="/static/landing/dashboard.webp" width="1100" height="610" alt="Voxyrn dashboard with call totals, recent logs, and links to preflight and the live run" fetchpriority="high" decoding="async" />
+              <img src="/static/landing/dashboard.webp" width="1100" height="565" alt="Voxyrn dashboard with call totals, recent logs, and links to preflight and the live run" fetchpriority="high" decoding="async" />
             </picture>
             <figcaption>The operator dashboard: recent calls and the path into a live run.</figcaption>
           </figure>

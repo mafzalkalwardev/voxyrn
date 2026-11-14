@@ -760,7 +760,7 @@ async def api_eval_script(request: Request):
         script,
         {
             "first_name": str(body.get("first_name") or "Sam"),
-            "company": str(body.get("company") or "INDUS Web Agency"),
+            "company": str(body.get("company") or "Northline"),
             "product": str(body.get("product") or script.product),
             "agent_name": str(body.get("agent_name") or "Alex"),
         },
@@ -1217,8 +1217,8 @@ async def web_manifest():
         "start_url": "/",
         "scope": "/",
         "display": "standalone",
-        "background_color": "#0C2340",
-        "theme_color": "#0C2340",
+        "background_color": "#1C1410",
+        "theme_color": "#1C1410",
         "icons": [
             {"src": "/static/landing/favicon-32.png", "sizes": "32x32", "type": "image/png"},
             {"src": "/static/landing/apple-touch-icon.png", "sizes": "180x180", "type": "image/png"},
@@ -2251,7 +2251,7 @@ def _server_port(default: int = 8000) -> int:
 
 @app.on_event("startup")
 async def _web_startup() -> None:
-    logger.info("INDUS web console build=%s (contacts API: /api/contacts/list)", WEB_APP_BUILD)
+    logger.info("Voxyrn console build=%s (contacts API: /api/contacts/list)", WEB_APP_BUILD)
     try:
         from src.auth import ensure_ashley, ensure_bootstrap_admin
 

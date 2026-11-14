@@ -1,4 +1,4 @@
-/* INDUS TRANSPORTS LLC — Dispatch Agent Console — global JS */
+/* Voxyrn operator console */
 
 (function () {
   'use strict';
@@ -34,23 +34,26 @@
   async function pollGlobalStatus() {
     try {
       const r = await fetch('/api/run/status');
-      const state = await r.json();
-      const badge = document.getElementById('globalRunBadge');
-      const pill  = document.getElementById('globalStatusPill');
+      if (r.ok) {
+        const state = await r.json();
+        const badge = document.getElementById('globalRunBadge');
+        const pill  = document.getElementById('globalStatusPill');
+        const status = String((state && state.status) || 'idle');
 
-      if (badge) badge.style.display = state.is_running ? 'inline-block' : 'none';
+        if (badge) badge.style.display = state && state.is_running ? 'inline-block' : 'none';
 
-      if (pill) {
-        pill.textContent = state.status.toUpperCase();
-        pill.className = 'status-pill';
-        if (state.status === 'running') {
-          pill.classList.add('status-pill--running');
-        } else if (state.status === 'completed') {
-          pill.classList.add('status-pill--completed');
-        } else if (state.status === 'failed') {
-          pill.classList.add('status-pill--failed');
-        } else if (state.status === 'stopping') {
-          pill.classList.add('status-pill--stopping');
+        if (pill) {
+          pill.textContent = status.toUpperCase();
+          pill.className = 'status-pill';
+          if (status === 'running') {
+            pill.classList.add('status-pill--running');
+          } else if (status === 'completed') {
+            pill.classList.add('status-pill--completed');
+          } else if (status === 'failed') {
+            pill.classList.add('status-pill--failed');
+          } else if (status === 'stopping') {
+            pill.classList.add('status-pill--stopping');
+          }
         }
       }
     } catch (_) {
