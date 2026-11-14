@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/voxyrn-audio"]
+members = ["crates/voxyrn-audio", "crates/voxyrn-py"]
 
 [profile.release]
 lto = true

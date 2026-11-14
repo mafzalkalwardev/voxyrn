@@ -186,19 +186,22 @@ class LocalWhisperSTT:
             from faster_whisper import WhisperModel
 
             self.model_dir.mkdir(parents=True, exist_ok=True)
-            compute_type = os.getenv("STT_COMPUTE_TYPE", "int8").strip() or "int8"
+            from src.infer_device import inference_plan
+
+            plan = inference_plan()
             try:
                 cpu_threads = int(os.getenv("STT_THREADS", "1"))
             except ValueError:
                 cpu_threads = 1
-            self._model = WhisperModel(
-                self.model,
-                device="cpu",
-                compute_type=compute_type,
-                cpu_threads=max(1, cpu_threads),
-                download_root=str(self.model_dir),
-                local_files_only=True,
-            )
+            kwargs = {
+                "device": plan["device"],
+                "compute_type": plan["compute_type"],
+                "download_root": str(self.model_dir),
+                "local_files_only": True,
+            }
+            if plan["device"] == "cpu":
+                kwargs["cpu_threads"] = max(1, cpu_threads)
+            self._model = WhisperModel(self.model, **kwargs)
         return self._model
 
     def transcribe(

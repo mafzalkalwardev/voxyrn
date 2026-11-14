@@ -8,7 +8,7 @@
 
 It dials from a Windows PC or a Linux server, talks with a local or API voice agent, detects voicemail, records the call, and files the lead in the built-in CRM. Speech, answers, and transcripts can stay on the machine, so a local campaign does not add a per-minute voice-API bill. The phone line is the operator's Google Voice account.
 
-This tree is the Voxyrn rebuild of the Routelix console. The Python operator app is the part that runs today. The Rust audio core in `rust/` is the first new piece: barge-in flush and the first-turn human-versus-greeting gate. CUDA is a later GPU path and is not used on the ARM VPS. The plan is in [docs/VOXYRN_PLAN.md](docs/VOXYRN_PLAN.md).
+This tree is the Voxyrn rebuild of the Routelix console. The operator app stays Python. Each live call's audio gate runs in Rust (`rust/`): a fixed 8-second PCM ring, barge-in, the human-versus-greeting gate, ringback, and the voicemail beep. On a machine with an NVIDIA GPU, local whisper and the GGUF model use CUDA; the ARM server stays on int8 CPU. The plan is in [docs/VOXYRN_PLAN.md](docs/VOXYRN_PLAN.md).
 
 <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=700&size=28&duration=2800&pause=700&color=0EA5E9&center=true&vCenter=true&width=900&lines=Live+AI+Google+Voice+Calling+Console;Realtime+STT+%2B+LLM+%2B+TTS+Outbound+Agent;Windows+Desktop+App+%2B+FastAPI+Operator+Console;Built+for+careful+24%2F7+calling+workflows" alt="Typing SVG" />
 

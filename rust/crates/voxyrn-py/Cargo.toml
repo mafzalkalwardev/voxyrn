@@ -1,0 +1,15 @@
+[package]
+name = "voxyrn-py"
+version = "0.1.0"
+edition = "2021"
+description = "Python extension for the Voxyrn realtime audio core"
+license = "MIT"
+publish = false
+
+[lib]
+name = "voxyrn_core"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.23", features = ["extension-module"] }
+voxyrn-audio = { path = "../voxyrn-audio" }

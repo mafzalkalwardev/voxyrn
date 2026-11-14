@@ -72,6 +72,9 @@ def get_llama(path: str | None = None):
         except ValueError:
             threads = 2
         threads = max(1, min(threads, int(os.cpu_count() or 2)))
+        from src.infer_device import inference_plan
+
+        gpu_layers = int(inference_plan()["gpu_layers"])
         try:
             ctx = int(os.getenv("LOCAL_LLM_CTX", "2048"))
         except ValueError:
@@ -85,12 +88,12 @@ def get_llama(path: str | None = None):
             model_path=str(model),
             n_ctx=max(512, min(ctx, 4096)),
             n_threads=threads,
-            n_gpu_layers=0,
+            n_gpu_layers=gpu_layers,
             n_batch=max(32, min(batch, 512)),
             verbose=False,
         )
         logger_msg = (
-            f"Local LLM ready: {model.name} threads={threads} ctx={ctx} batch={batch}"
+            f"Local LLM ready: {model.name} threads={threads} ctx={ctx} batch={batch} gpu_layers={gpu_layers}"
         )
         try:
             import logging

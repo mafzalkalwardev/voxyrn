@@ -6,7 +6,7 @@ description = "Realtime audio gate for the Voxyrn dialer"
 license = "MIT"
 
 [features]
-# Reserved for an NVIDIA build (ort or candle). The ARM VPS does not enable this.
+# Compiles cuda/front_end.cu with nvcc and links it. The ARM VPS stays on the CPU path.
 cuda = []
 
 [dependencies]

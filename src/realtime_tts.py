@@ -219,9 +219,9 @@ class RealtimeTTS:
 
     def speak_text_chunked(self, text: str, interrupt: bool = True) -> None:
         """Speak each sentence sequentially for lower perceived latency."""
-        from src.conversation_agent import split_sentences
+        from src.rust_core import chunk_reply
 
-        parts = split_sentences(text)
+        parts = chunk_reply(text)
         if not parts:
             return
         if interrupt:

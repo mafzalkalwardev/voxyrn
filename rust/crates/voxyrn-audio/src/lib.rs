@@ -1,8 +1,19 @@
-//! First slice of the Voxyrn realtime audio core.
+//! Realtime audio core for one live call.
 //!
-//! The capture thread will push samples here. A barge-in flushes playback.
-//! The first inbound turn is classified from how long the person speaks
-//! before they yield the floor.
+//! The capture thread pushes PCM here. The ring is fixed-capacity, barge-in
+//! drops playback, and the first turn is classified from burst length.
+//! Ringback and beep detection run on the same frames. CUDA is an optional
+//! build of the same front end; the default build is the CPU path.
+
+mod chunk;
+mod cuda;
+mod engine;
+mod signal;
+
+pub use chunk::{chunk_reply, filler_due, pace_gap_ms};
+pub use cuda::backend_name;
+pub use engine::{greeting_seconds, turn_name, CallEngine, FrameDecision};
+pub use signal::rms;
 
 /// Continuous speech longer than this, with no yield, is a recorded greeting.
 pub const GREETING_CONTINUOUS_SECS: f32 = 2.2;
@@ -41,6 +52,10 @@ impl PcmRing {
 
     pub fn is_empty(&self) -> bool {
         self.len == 0
+    }
+
+    pub fn capacity(&self) -> usize {
+        self.samples.len()
     }
 
     /// Oldest sample first.
@@ -158,5 +173,127 @@ mod tests {
     #[test]
     fn an_unfinished_short_burst_keeps_waiting() {
         assert_eq!(classify_first_turn(0.8, 0.1), FirstTurn::Wait);
+    }
+}
+
+#[cfg(test)]
+mod engine_tests {
+    use super::*;
+
+    fn tone(freq: f32, seconds: f32) -> Vec<f32> {
+        let n = (seconds * engine::SAMPLE_RATE) as usize;
+        (0..n)
+            .map(|i| (2.0 * std::f32::consts::PI * freq * i as f32 / engine::SAMPLE_RATE).sin() * 0.2)
+            .collect()
+    }
+
+    fn push_all(gate: &mut CallEngine, samples: &[f32], speaking: bool) -> FrameDecision {
+        let mut last = gate.push(&[], speaking, 0.02);
+        for frame in samples.chunks(320) {
+            last = gate.push(frame, speaking, 0.02);
+        }
+        last
+    }
+
+    #[test]
+    fn the_ring_stays_eight_seconds() {
+        let mut gate = CallEngine::new();
+        let before = gate.memory_bytes();
+        let loud = vec![0.2f32; 16_000 * 10];
+        push_all(&mut gate, &loud, false);
+        assert_eq!(gate.memory_bytes(), before);
+        assert_eq!(before, 8 * 16_000 * 4);
+    }
+
+    #[test]
+    fn loud_audio_while_speaking_barge_in() {
+        let mut gate = CallEngine::new();
+        let decision = gate.push(&[0.2; 320], true, 0.02);
+        assert!(decision.barge_in);
+        let quiet = gate.push(&[0.0; 320], true, 0.02);
+        assert!(!quiet.barge_in);
+    }
+
+    #[test]
+    fn a_short_burst_then_silence_locks_human() {
+        let mut gate = CallEngine::new();
+        let speech = vec![0.2f32; (0.6 * engine::SAMPLE_RATE) as usize];
+        let silence = vec![0.0f32; (0.5 * engine::SAMPLE_RATE) as usize];
+        push_all(&mut gate, &speech, false);
+        let decision = push_all(&mut gate, &silence, false);
+        assert_eq!(decision.first_turn, FirstTurn::Human);
+    }
+
+    #[test]
+    fn a_long_tone_locks_the_greeting() {
+        let mut gate = CallEngine::new();
+        let speech = vec![0.2f32; (2.3 * engine::SAMPLE_RATE) as usize];
+        let decision = push_all(&mut gate, &speech, false);
+        assert_eq!(decision.first_turn, FirstTurn::Greeting);
+        assert!((engine::greeting_seconds() - 2.2).abs() < 0.01);
+    }
+
+    #[test]
+    fn north_american_ringback_breaks_when_someone_speaks() {
+        let mut gate = CallEngine::new();
+        let ring = {
+            let low = tone(440.0, 1.6);
+            let high = tone(480.0, 1.6);
+            low.iter().zip(high).map(|(a, b)| a + b).collect::<Vec<_>>()
+        };
+        let during = push_all(&mut gate, &ring, false);
+        assert_eq!(during.ringback, "ringing");
+        let gap = vec![0.0f32; 16_000];
+        assert_eq!(push_all(&mut gate, &gap, false).ringback, "ringing");
+        let voice = tone(180.0, 0.4);
+        assert_eq!(push_all(&mut gate, &voice, false).ringback, "pickup");
+    }
+
+    #[test]
+    fn a_sustained_beep_is_marked() {
+        let mut gate = CallEngine::new();
+        let beep = tone(1200.0, 0.4);
+        assert!(push_all(&mut gate, &beep, false).beep);
+        let mut other = CallEngine::new();
+        let noise = tone(180.0, 0.4);
+        assert!(!push_all(&mut other, &noise, false).beep);
+    }
+
+    #[test]
+    fn replies_start_at_the_first_sentence() {
+        let parts = chunk_reply("Got it. Let me check that for you.");
+        assert_eq!(
+            parts,
+            vec!["Got it.".to_string(), "Let me check that for you.".to_string()]
+        );
+        let price = chunk_reply("It is 1.5 percent, then we send the lanes.");
+        assert_eq!(price.len(), 1);
+    }
+
+    #[test]
+    fn a_long_clause_can_start_playback() {
+        let parts = chunk_reply("Got it, let me pull the lanes for you, then we can book.");
+        assert!(parts.len() >= 2);
+        assert!(parts[0].ends_with(','));
+    }
+
+    #[test]
+    fn fillers_and_pacing_stay_in_range() {
+        assert!(!filler_due(599));
+        assert!(filler_due(600));
+        for seed in [1u64, 15, 99] {
+            let gap = pace_gap_ms(seed);
+            assert!((12_000..=28_000).contains(&gap));
+        }
+        assert_ne!(pace_gap_ms(1), pace_gap_ms(2));
+    }
+
+    #[test]
+    fn the_default_backend_is_cpu_and_the_kernel_is_in_tree() {
+        assert_eq!(backend_name(), "cpu");
+        let kernel = include_str!("../cuda/front_end.cu");
+        assert!(kernel.contains("__global__"));
+        assert!(kernel.contains("voxyrn_frame_rms_kernel"));
+        assert!(kernel.contains("voxyrn_cuda_rms"));
     }
 }

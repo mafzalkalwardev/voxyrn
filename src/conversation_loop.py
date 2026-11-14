@@ -30,6 +30,7 @@ from src.human_detector import HumanDetector
 from src.paths import runtime_base
 from src.realtime_diagnostics import DIAGNOSTICS_PATH, write_live_diagnostics
 from src.realtime_tts import RealtimeTTS
+from src.rust_core import CallEngine
 from src.stt import GroqWhisperSTT
 from src.vad import EnergyVAD, VADConfig
 from src.voicemail_detector import (
@@ -104,6 +105,9 @@ class ConversationLoop:
         cfg = vad_config or VADConfig()
         cfg.min_speech_seconds = min_speech_seconds
         self._vad = EnergyVAD(cfg)
+        self._rust = CallEngine()
+        self._rust_first_turn = "wait"
+        self._rust_ringback = "idle"
         self._calibrate_frames = max(0, int(calibrate_frames))
         self._stt_prompt = stt_prompt
         self._transcript_path = transcript_path
@@ -477,6 +481,8 @@ class ConversationLoop:
             "capture_device_name": capture_diag.get("selected_device_name", ""),
             "capture_mode": capture_diag.get("capture_mode", ""),
             "capture_rms": self._last_capture_rms,
+            "rust_first_turn": self._rust_first_turn,
+            "rust_ringback": self._rust_ringback,
             "vad_threshold": self._vad.config.speech_threshold,
             "vad_detected": self._vad.is_in_speech,
             "speech_started_at": self._speech_started_wall,
@@ -724,14 +730,22 @@ class ConversationLoop:
 
             frame = np.asarray(frame, dtype=np.float32)
             self._write_recording_frame(frame)
-            rms = float(np.sqrt(np.mean(frame.astype(np.float64) ** 2)))
-            self._last_capture_rms = rms
             threshold = self._vad.config.speech_threshold
+            speaking = bool(self.tts.is_speaking())
+            try:
+                gate = self._rust.push(frame, agent_speaking=speaking, threshold=float(threshold))
+                rms = float(gate["rms"])
+            except Exception:
+                rms = float(np.sqrt(np.mean(frame.astype(np.float64) ** 2)))
+                gate = {"barge_in": False, "first_turn": "wait", "ringback": "idle"}
+            self._last_capture_rms = rms
+            self._rust_first_turn = str(gate.get("first_turn") or "wait")
+            self._rust_ringback = str(gate.get("ringback") or "idle")
 
             self._log_rms_if_due(now, rms, threshold)
 
-            if self.tts.is_speaking():
-                if rms >= max(threshold * 2.0, threshold + 0.01):
+            if speaking:
+                if gate["barge_in"]:
                     logger.info(
                         "[CAPTURE] Barge-in audio while TTS speaking rms=%.4f threshold=%.4f; stopping Tony",
                         rms,
