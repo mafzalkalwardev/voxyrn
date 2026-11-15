@@ -4,7 +4,7 @@
 
 <img src="src/static/voxyrn-logo.svg" alt="Voxyrn icon" width="180" />
 
-**Voxyrn is a self-hosted AI auto dialer and carrier CRM for outbound Google Voice campaigns.**
+**Self-hosted AI auto dialer and carrier CRM for outbound Google Voice campaigns. Voicemail detection, call recording, leads, and local Piper, Kokoro, and faster-whisper speech.**
 
 It dials from a Windows PC or a Linux server, talks with a local or API voice agent, detects voicemail, records the call, and files the lead in the built-in CRM. Speech, answers, and transcripts can stay on the machine, so a local campaign does not add a per-minute voice-API bill. The phone line is the operator's Google Voice account.
 
@@ -60,6 +60,16 @@ On a connected outbound call, yes, Voxyrn listens and answers. It does not run a
 ---
 
 ## Screenshots
+
+The operator console uses the ink sidebar and ember actions. Dark mode is the same palette. These shots are the current theme.
+
+| Landing | Dashboard | Dark dashboard |
+| --- | --- | --- |
+| ![Landing](docs/screenshots/landing-desktop.png) | ![Dashboard](docs/screenshots/01-dashboard.png) | ![Dark dashboard](docs/screenshots/dashboard-dark.png) |
+
+| Call script | Voices |
+| --- | --- |
+| ![Call script](docs/screenshots/scripts.png) | ![Voices](docs/screenshots/voices.png) |
 
 Every operator tab, then the CRM list and a profile with sample records.
 

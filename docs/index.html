@@ -13,7 +13,9 @@
   <meta property="og:description" content="Outbound Google Voice dialer with a local voice agent, voicemail detection, recordings, leads, and a carrier CRM." />
   <meta property="og:url" content="https://voxyrn.induswebagency.com/" />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://mafzalkalwardev.github.io/Voxyrn/screenshots/01-dashboard.png" />
+  <meta name="theme-color" content="#1C1410" />
+  <meta property="og:image" content="https://voxyrn.induswebagency.com/static/landing/og.jpg" />
+  <meta property="og:image:alt" content="Voxyrn, a self-hosted AI auto dialer and carrier CRM" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <script type="application/ld+json">
@@ -24,15 +26,9 @@
         "@type": "SoftwareApplication",
         "name": "Voxyrn",
         "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Windows",
+        "operatingSystem": "Linux, Windows",
         "url": "https://voxyrn.induswebagency.com/",
-        "description": "Self-hosted AI auto dialer and carrier CRM for outbound Google Voice campaigns. Local speech, voicemail detection, call recording, leads, and CRM profiles run on the operator PC.",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD",
-          "description": "The software in this repository has no setup fee and no per-minute voice-API bill while the local engines are selected. Google Voice remains the operator's phone line."
-        },
+        "description": "Self-hosted AI auto dialer and carrier CRM for outbound Google Voice campaigns. Local speech, voicemail detection, call recording, leads, and CRM profiles run on the operator machine.",
         "featureList": [
           "Google Voice outbound auto dialer",
           "AI voice agent",
@@ -58,7 +54,7 @@
             "name": "How to automate cold calling using budget AI agents?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Load the contacts workbook, pass preflight, and start a live run in the Voxyrn console. The agent listens, answers, and writes the lead. Kokoro or Piper speaks, faster-whisper transcribes, and a local GGUF model writes the reply on the same Windows PC."
+              "text": "Load the contacts workbook, pass preflight, and start a live run in the Voxyrn console. The agent listens, answers, and writes the lead. Kokoro or Piper speaks, faster-whisper transcribes, and a local GGUF model writes the reply on the same machine."
             }
           },
           {
@@ -92,20 +88,20 @@
   </script>
   <style>
     :root { color-scheme: dark; }
-    body { margin: 0; font-family: Georgia, "Iowan Old Style", serif; background: #0b1220; color: #e7eef8; line-height: 1.55; }
+    body { margin: 0; font-family: Georgia, "Iowan Old Style", serif; background: #1C1410; color: #F6F1EA; line-height: 1.55; }
     header, main, footer { max-width: 920px; margin: 0 auto; padding: 1.25rem 1.25rem 0; }
     h1, h2 { font-family: "Segoe UI", sans-serif; line-height: 1.2; }
     h1 { font-size: 2rem; margin-bottom: 0.4rem; }
     h2 { font-size: 1.35rem; margin-top: 2rem; }
-    a { color: #7dd3fc; }
+    a { color: #F0A06A; }
     .lede { font-size: 1.15rem; }
     ul { padding-left: 1.2rem; }
     table { width: 100%; border-collapse: collapse; font-family: "Segoe UI", sans-serif; font-size: 0.95rem; }
-    th, td { text-align: left; vertical-align: top; border-bottom: 1px solid #243044; padding: 0.55rem 0.4rem; }
+    th, td { text-align: left; vertical-align: top; border-bottom: 1px solid #3A2A22; padding: 0.55rem 0.4rem; }
     img, video { max-width: 100%; height: auto; border-radius: 8px; }
     figure { margin: 1rem 0 1.5rem; }
-    figcaption { font-family: "Segoe UI", sans-serif; color: #9fb0c6; font-size: 0.9rem; }
-    footer { color: #9fb0c6; padding-bottom: 2rem; font-family: "Segoe UI", sans-serif; }
+    figcaption { font-family: "Segoe UI", sans-serif; color: #C4B2A4; font-size: 0.9rem; }
+    footer { color: #C4B2A4; padding-bottom: 2rem; font-family: "Segoe UI", sans-serif; }
     .brandbar { display: flex; align-items: center; gap: 0.85rem; }
     .brandbar img { width: 52px; height: 52px; flex: none; }
     .brandbar h1 { margin: 0; }

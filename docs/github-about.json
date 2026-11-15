@@ -1,0 +1,20 @@
+{
+  "description": "Self-hosted AI auto dialer and carrier CRM for outbound Google Voice campaigns. Voicemail detection, call recording, leads, and local Piper, Kokoro, and faster-whisper speech.",
+  "homepage": "https://voxyrn.induswebagency.com",
+  "topics": [
+    "voxyrn",
+    "auto-dialer",
+    "google-voice",
+    "voice-agent",
+    "carrier-crm",
+    "call-recording",
+    "voicemail-detection",
+    "fastapi",
+    "selenium",
+    "piper-tts",
+    "faster-whisper",
+    "self-hosted",
+    "linux",
+    "seo"
+  ]
+}

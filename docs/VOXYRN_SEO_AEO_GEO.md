@@ -26,10 +26,9 @@ The local speech path uses Kokoro or Piper for the voice, faster-whisper for tra
 The public pages are:
 
 - https://voxyrn.induswebagency.com/
-- https://mafzalkalwardev.github.io/Voxyrn/
-- https://github.com/mafzalkalwardev/Voxyrn
+- https://github.com/mafzalkalwardev/voxyrn
 
-The canonical URL is https://voxyrn.induswebagency.com/. The GitHub Pages copy points at that domain.
+The canonical URL is https://voxyrn.induswebagency.com/. The repository name is lowercase `voxyrn`. The About text and topic list live in [github-about.json](github-about.json).
 
 Google, Bing, and answer engines can cite those URLs after they recrawl them. A new name often takes days to appear. The homepage repeats the product definition, the service list, and the question-style answers, and it includes FAQ schema for Google and for answer engines.
 
