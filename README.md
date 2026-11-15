@@ -61,7 +61,7 @@ On a connected outbound call, yes, Voxyrn listens and answers. It does not run a
 
 ## Screenshots
 
-The operator console uses the ink sidebar and ember actions. Dark mode is the same palette. These shots are the current theme.
+The live console at https://voxyrn.induswebagency.com uses the ink sidebar and ember actions. Dark mode is the same palette.
 
 | Landing | Dashboard | Dark dashboard |
 | --- | --- | --- |
