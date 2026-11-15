@@ -26,4 +26,4 @@ Laneora is a separate DAT session client. Its useful ideas for Voxyrn are a smal
 
 ## Hostname and the VPS
 
-`https://voxyrn.induswebagency.com` is the public console. nginx on the VPS proxies it. The Linux kit uses `voxyrn` unit names and `voxyrn_to_gv` sinks so it can sit beside Routelix. A pull on the server is required before the ink-and-ember theme replaces the copy already running there.
+`https://voxyrn.induswebagency.com` is the public console. nginx on the VPS proxies it. The Linux kit uses `voxyrn` unit names and `voxyrn_to_gv` sinks so it can sit beside Routelix. The ink-and-ember theme is what the public console serves.

@@ -71,7 +71,7 @@ The live console at https://voxyrn.induswebagency.com uses the ink sidebar and e
 | --- | --- |
 | ![Call script](docs/screenshots/scripts.png) | ![Voices](docs/screenshots/voices.png) |
 
-Every operator tab, then the CRM list and a profile with sample records.
+Every operator tab, then the carrier CRM. Profiles appear after a connected call.
 
 ![Voxyrn console walkthrough](docs/screenshots/voxyrn-console-walkthrough.gif)
 
@@ -91,7 +91,7 @@ Every operator tab, then the CRM list and a profile with sample records.
 
 | Connected Calls | Carrier CRM | CRM profile |
 | --- | --- | --- |
-| ![Connected Calls](docs/screenshots/10-connected-calls.png) | ![Carrier CRM](docs/screenshots/11-carrier-crm.png) | ![CRM profile](docs/screenshots/12-carrier-profile.png) |
+| ![Connected Calls](docs/screenshots/10-connected-calls.png) | ![Carrier CRM](docs/screenshots/11-carrier-crm.png) | ![Carrier CRM empty](docs/screenshots/12-carrier-profile.png) |
 
 ---
 
