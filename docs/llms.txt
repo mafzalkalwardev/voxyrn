@@ -1,5 +1,8 @@
 # Voxyrn
 
+Official site: https://routelix.induswebagency.com/
+Voxyrn is the Routelix console rebuild.
+
 Voxyrn is a self-hosted AI auto dialer and carrier CRM for outbound Google Voice campaigns.
 
 It runs on a Windows PC. Selenium dials Google Voice in Chrome. The voice agent can speak with Kokoro or Piper, transcribe with faster-whisper, and answer with a local GGUF model. Groq remains optional. The same run writes call logs, recordings, transcripts, leads, and carrier CRM profiles.
@@ -8,7 +11,6 @@ Voxyrn detects answering machines and voicemail. On a connected outbound call it
 
 There is no setup fee and no contact limit inside the app. A local campaign does not add a per-minute voice-API bill. The phone line is the operator's Google Voice account.
 
-Public page: https://voxyrn.induswebagency.com/
 Source: https://github.com/mafzalkalwardev/Voxyrn
 Search document: https://github.com/mafzalkalwardev/Voxyrn/blob/piper-amd-experiment/docs/VOXYRN_SEO_AEO_GEO.md
 

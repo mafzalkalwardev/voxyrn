@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from src.web_app import app
 
 ORIGIN = "https://voxyrn.induswebagency.com"
+OFFICIAL = "https://routelix.induswebagency.com/"
 
 
 class _H1Count(HTMLParser):
@@ -29,7 +30,10 @@ def test_landing_is_one_static_h1_with_definition():
     assert parser.h1 == 1
     assert "What is Voxyrn?" in response.text
     assert "self-hosted AI auto dialer and carrier CRM" in response.text
-    assert 'rel="canonical" href="https://voxyrn.induswebagency.com/"' in response.text
+    assert f'rel="canonical" href="{OFFICIAL}"' in response.text
+    assert f'property="og:url" content="{OFFICIAL}"' in response.text
+    assert "Voxyrn is part of Routelix. Official site:" in response.text
+    assert f'href="{OFFICIAL}"' in response.text
     assert "application/ld+json" in response.text
     assert "FAQPage" in response.text
     assert "HowTo" in response.text
@@ -68,6 +72,14 @@ def test_json_ld_graph_parses():
     app_node = next(node for node in data["@graph"] if node["@type"] == "SoftwareApplication")
     assert "aggregateRating" not in app_node
     assert "offers" not in app_node
+    assert app_node["name"] == "Routelix"
+    assert app_node["alternateName"] == "Voxyrn"
+    website = next(node for node in data["@graph"] if node["@type"] == "WebSite")
+    for node in (app_node, website):
+        assert node["url"] == OFFICIAL
+        assert node["sameAs"] == OFFICIAL
+        assert node["mainEntityOfPage"] == OFFICIAL
+    assert "voxyrn.induswebagency.com" not in app_node["url"]
     faq = next(node for node in data["@graph"] if node["@type"] == "FAQPage")
     first = faq["mainEntity"][0]
     assert first["name"] == "What is Voxyrn?"
@@ -84,12 +96,11 @@ def test_robots_sitemap_and_llms():
         assert bot in body
     assert "Disallow: /api" in body
     assert "Disallow: /dashboard" in body
-    assert f"Sitemap: {ORIGIN}/sitemap.xml" in body
+    assert "Sitemap:" not in body
 
     sitemap = client.get("/sitemap.xml")
-    assert sitemap.status_code == 200
-    assert "application/xml" in sitemap.headers["content-type"]
-    assert f"<loc>{ORIGIN}/</loc>" in sitemap.text
+    assert sitemap.status_code == 404
+    assert f"<loc>{ORIGIN}/</loc>" not in sitemap.text
 
     short = client.get("/llms.txt")
     full = client.get("/llms-full.txt")
@@ -97,6 +108,7 @@ def test_robots_sitemap_and_llms():
     assert full.status_code == 200
     assert short.headers["content-type"].startswith("text/plain")
     assert "What is Voxyrn?" in short.text
+    assert f"Official site: {OFFICIAL}" in short.text
     assert ORIGIN in short.text
     assert "PulseAudio" in full.text or "PipeWire" in full.text
     assert "noVNC" in full.text
