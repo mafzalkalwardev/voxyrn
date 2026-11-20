@@ -28,10 +28,29 @@ def _fake_device_list():
 # ---- list_audio_devices ----
 
 def test_list_devices_returns_list_with_sounddevice():
-    with patch("src.voice_playback.list_audio_devices", return_value=_fake_device_list()):
+    import sys
+    import types
+
+    fake = types.ModuleType("sounddevice")
+
+    def query_devices():
+        return [
+            {
+                "name": item["name"],
+                "max_input_channels": item["max_input_channels"],
+                "max_output_channels": item["max_output_channels"],
+                "default_samplerate": item["default_samplerate"],
+            }
+            for item in _fake_device_list()
+        ]
+
+    fake.query_devices = query_devices
+    # Patch the module the function imports. Patching list_audio_devices itself
+    # does not affect this file's imported name, so the test used to open PortAudio.
+    with patch.dict(sys.modules, {"sounddevice": fake}):
         devices = list_audio_devices()
-        # With real sounddevice absent, patching the return directly
-    assert isinstance(devices, list)
+    assert [item["name"] for item in devices] == [item["name"] for item in _fake_device_list()]
+    assert devices[1]["index"] == 1
 
 
 def test_list_devices_empty_on_import_error():
