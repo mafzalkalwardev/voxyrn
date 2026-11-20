@@ -7,10 +7,11 @@ Nothing here is a customer count, a rating, a testimonial, or a price.
 from __future__ import annotations
 
 import json
-from xml.sax.saxutils import escape
 
 ORIGIN = "https://voxyrn.induswebagency.com"
-CANONICAL = ORIGIN + "/"
+# This host is the operator console. Search identity belongs to Routelix.
+OFFICIAL = "https://routelix.induswebagency.com/"
+PAGE = ORIGIN + "/"
 AGENCY_URL = "https://induswebagency.com"
 AGENCY_NAME = "INDUS Web Agency"
 TITLE = "Voxyrn — self-hosted AI auto dialer and carrier CRM"
@@ -201,8 +202,18 @@ FAQ = [
 ]
 
 
+def _official_identity() -> dict:
+    """Search identity for this console is the Routelix site."""
+    return {
+        "url": OFFICIAL,
+        "sameAs": OFFICIAL,
+        "mainEntityOfPage": OFFICIAL,
+    }
+
+
 def json_ld() -> dict:
     features = [item["title"] + ": " + item["text"] for item in FEATURES]
+    identity = _official_identity()
     return {
         "@context": "https://schema.org",
         "@graph": [
@@ -214,56 +225,65 @@ def json_ld() -> dict:
             },
             {
                 "@type": "WebSite",
-                "@id": CANONICAL + "#website",
-                "name": "Voxyrn",
-                "url": CANONICAL,
-                "description": DESCRIPTION,
+                "@id": OFFICIAL + "#website",
+                "name": "Routelix",
+                "alternateName": "Voxyrn",
+                **identity,
+                "description": (
+                    "Official site for Routelix. Voxyrn is the Routelix console rebuild."
+                ),
                 "publisher": {"@id": AGENCY_URL + "/#organization"},
                 "inLanguage": "en",
             },
             {
                 "@type": "SoftwareApplication",
-                "@id": CANONICAL + "#app",
-                "name": "Voxyrn",
+                "@id": OFFICIAL + "#app",
+                "name": "Routelix",
+                "alternateName": "Voxyrn",
                 "applicationCategory": "BusinessApplication",
                 "operatingSystem": "Linux, Windows",
-                "url": CANONICAL,
-                "description": DESCRIPTION,
+                **identity,
+                "description": (
+                    "Voxyrn is the Routelix console rebuild. The official product "
+                    "site is Routelix."
+                ),
                 "featureList": features,
                 "provider": {"@id": AGENCY_URL + "/#organization"},
                 "image": ORIGIN + "/static/landing/og.jpg",
             },
             {
                 "@type": "BreadcrumbList",
-                "@id": CANONICAL + "#breadcrumb",
+                "@id": OFFICIAL + "#breadcrumb",
                 "itemListElement": [
                     {
                         "@type": "ListItem",
                         "position": 1,
-                        "name": "Voxyrn",
-                        "item": CANONICAL,
+                        "name": "Routelix",
+                        "item": OFFICIAL,
                     }
                 ],
             },
             {
                 "@type": "HowTo",
-                "@id": CANONICAL + "#howto",
-                "name": "How to launch an outbound Voxyrn campaign",
+                "@id": PAGE + "#howto",
+                "name": "How to launch an outbound campaign on the Routelix console",
                 "description": "Sign in, import contacts, pass preflight, confirm Google Voice, and start a live run.",
+                **identity,
                 "step": [
                     {
                         "@type": "HowToStep",
                         "position": index,
                         "name": step["name"],
                         "text": step["text"],
-                        "url": CANONICAL + "#launch",
+                        "url": PAGE + "#launch",
                     }
                     for index, step in enumerate(HOWTO, start=1)
                 ],
             },
             {
                 "@type": "FAQPage",
-                "@id": CANONICAL + "#faq",
+                "@id": PAGE + "#faq",
+                **identity,
                 "mainEntity": [
                     {
                         "@type": "Question",
@@ -285,7 +305,7 @@ def landing_context() -> dict:
     return {
         "title": TITLE,
         "description": DESCRIPTION,
-        "canonical": CANONICAL,
+        "canonical": OFFICIAL,
         "origin": ORIGIN,
         "agency_url": AGENCY_URL,
         "agency_name": AGENCY_NAME,
@@ -347,15 +367,11 @@ def robots_txt() -> str:
 
 
 def sitemap_xml() -> str:
-    loc = escape(CANONICAL)
+    # This sitemap only listed the console home. That URL is omitted so the
+    # host does not submit itself as a separate product page. The route stays.
     return (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        "  <url>\n"
-        f"    <loc>{loc}</loc>\n"
-        "    <changefreq>weekly</changefreq>\n"
-        "    <priority>1.0</priority>\n"
-        "  </url>\n"
         "</urlset>\n"
     )
 
@@ -364,6 +380,9 @@ def llms_txt() -> str:
     lines = [
         "# Voxyrn",
         "",
+        f"Official site: {OFFICIAL}",
+        "Voxyrn is the Routelix console rebuild.",
+        "",
         f"> {DESCRIPTION}",
         "",
         "Voxyrn is a self-hosted AI auto dialer and carrier CRM. Selenium places "
@@ -371,7 +390,6 @@ def llms_txt() -> str:
         "can run on the server with Piper or Kokoro, faster-whisper int8, and a local "
         "GGUF model, or it can use Groq when an API key is configured.",
         "",
-        f"Canonical page: {CANONICAL}",
         f"Full description: {ORIGIN}/llms-full.txt",
         f"Operator login: {ORIGIN}/login",
         f"Host: {AGENCY_NAME} ({AGENCY_URL})",
@@ -382,7 +400,7 @@ def llms_txt() -> str:
         "",
         "## Links",
         "",
-        f"- [Home]({CANONICAL})",
+        f"- [Official site]({OFFICIAL})",
         f"- [Log in]({ORIGIN}/login)",
         f"- [INDUS Web Agency]({AGENCY_URL})",
         "",

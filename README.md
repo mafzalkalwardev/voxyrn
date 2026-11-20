@@ -2,6 +2,8 @@
 
 # Voxyrn — self-hosted AI auto dialer, voice agent, and CRM
 
+Official site: https://routelix.induswebagency.com/ (Voxyrn is the Routelix console rebuild).
+
 <img src="src/static/voxyrn-logo.svg" alt="Voxyrn icon" width="180" />
 
 **Self-hosted AI auto dialer and carrier CRM for outbound Google Voice campaigns. Voicemail detection, call recording, leads, and local Piper, Kokoro, and faster-whisper speech.**
@@ -33,7 +35,7 @@ This tree is the Voxyrn rebuild of the Routelix console. The operator app stays 
 
 `Voxyrn` `self-hosted AI auto dialer` `AI voice agent` `Google Voice auto dialer` `answering machine detection` `voicemail detection` `call recording CRM` `carrier CRM` `lead qualification` `local LLM cold caller` `Python FastAPI dialer` `open source alternative to Vapi` `Kokoro` `Piper TTS` `faster-whisper`
 
-Public page: https://voxyrn.induswebagency.com/
+Official site: https://routelix.induswebagency.com/ (Voxyrn is the Routelix console rebuild).
 
 The full search, answer, and generative-engine map, including the question-style queries, is in [docs/VOXYRN_SEO_AEO_GEO.md](docs/VOXYRN_SEO_AEO_GEO.md).
 
