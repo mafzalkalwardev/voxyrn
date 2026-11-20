@@ -1186,9 +1186,9 @@ async def robots_txt():
 
 @app.get("/sitemap.xml")
 async def sitemap_xml():
-    from src.public_site import sitemap_xml as build_sitemap
-
-    return Response(build_sitemap(), media_type="application/xml")
+    # This file only listed the console home. An empty urlset is not a valid
+    # sitemap, and robots.txt no longer advertises one.
+    return Response(status_code=404)
 
 
 @app.get("/llms.txt")

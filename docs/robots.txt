@@ -42,5 +42,3 @@ Allow: /
 
 User-agent: CCBot
 Allow: /
-
-Sitemap: https://voxyrn.induswebagency.com/sitemap.xml

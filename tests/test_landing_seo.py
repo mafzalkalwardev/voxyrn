@@ -96,13 +96,11 @@ def test_robots_sitemap_and_llms():
         assert bot in body
     assert "Disallow: /api" in body
     assert "Disallow: /dashboard" in body
-    assert f"Sitemap: {ORIGIN}/sitemap.xml" in body
+    assert "Sitemap:" not in body
 
     sitemap = client.get("/sitemap.xml")
-    assert sitemap.status_code == 200
-    assert "application/xml" in sitemap.headers["content-type"]
+    assert sitemap.status_code == 404
     assert f"<loc>{ORIGIN}/</loc>" not in sitemap.text
-    assert "<url>" not in sitemap.text
 
     short = client.get("/llms.txt")
     full = client.get("/llms-full.txt")

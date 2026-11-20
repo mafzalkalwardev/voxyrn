@@ -362,18 +362,7 @@ def robots_txt() -> str:
         for path in _APP_PATHS:
             lines.append(f"Disallow: {path}")
         blocks.append("\n".join(lines))
-    blocks.append(f"Sitemap: {ORIGIN}/sitemap.xml")
     return "\n\n".join(blocks) + "\n"
-
-
-def sitemap_xml() -> str:
-    # This sitemap only listed the console home. That URL is omitted so the
-    # host does not submit itself as a separate product page. The route stays.
-    return (
-        '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        "</urlset>\n"
-    )
 
 
 def llms_txt() -> str:
